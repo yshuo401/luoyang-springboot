@@ -1,37 +1,30 @@
 # luoyang-springboot
 
-洛阳旅游智能问答系统的 Java 后端服务。当前目录提供可启动的 Spring Boot 基础工程、健康检查接口和首版数据库迁移，业务模块会在后续迭代中逐步加入。
+洛阳旅游智能问答系统的 Java 后端服务：Spring Boot 3.3.5 + Java 17 + 原生 MyBatis + Flyway。当前提供可启动骨架、统一响应结构和 `/api/v1/health`，业务模块在阶段 2 起逐步加入。
 
 ## 运行环境
 
 - JDK 17+
 - Maven 3.9+
-- MySQL 8.x（宿主机端口默认 `3308`）
-- Redis 7.x（宿主机端口默认 `6381`）
+- MySQL 8.x（开发容器宿主机端口 `3308`）
+- Redis 7.x（开发容器宿主机端口 `6381`，开发环境无密码）
 
-根目录的 `docker-compose.yml` 会创建数据库 `luoyang` 和应用账号 `luoyang_app`。先在项目根目录复制 `.env.example` 为 `.env`，设置三个密码，再启动依赖服务：
-
-```bash
-docker compose up -d mysql redis
-docker compose ps
-```
+数据库容器由项目根目录 `docker-compose.yml` 创建，首次启动会自动执行 `src/main/resources/db/migration/` 下的 V1/V2 脚本完成建表。
 
 ## 配置
 
-默认配置见 [`src/main/resources/application.yml`](src/main/resources/application.yml)，可复制 [`src/main/resources/application.yml.example`](src/main/resources/application.yml.example) 作为新环境模板。本地运行时可通过环境变量覆盖：
+默认配置见 [`src/main/resources/application.yml`](src/main/resources/application.yml)，可用环境变量覆盖：
 
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `DB_URL` | `jdbc:mysql://localhost:3308/luoyang?...` | 从 Java 进程访问 MySQL 的 JDBC 地址 |
 | `DB_USERNAME` | `luoyang_app` | Compose 创建的应用用户 |
-| `DB_PASSWORD` | `change_this_mysql_password` | 应与根目录 `.env` 的 `MYSQL_PASSWORD` 一致 |
-| `REDIS_HOST` | `localhost` | Redis 主机；服务在 Compose 内运行时使用 `redis` |
+| `DB_PASSWORD` | `luoyang1234` | 与 compose 的 `MYSQL_PASSWORD` 一致 |
+| `REDIS_HOST` | `localhost` | Redis 主机；服务在 Compose 网络内运行时使用 `redis` |
 | `REDIS_PORT` | `6381` | 宿主机端口；Compose 网络内使用 `6379` |
-| `REDIS_PASSWORD` | `change_this_redis_password` | 应与根目录 `.env` 的 `REDIS_PASSWORD` 一致 |
+| `REDIS_PASSWORD` | 空 | 开发 compose 的 Redis 无密码；启用 requirepass 后填写 |
 | `SERVER_PORT` | `8080` | HTTP 服务端口 |
 | `FLYWAY_ENABLED` | `true` | 是否启动时执行数据库迁移 |
-
-生产或共享环境应通过实际环境变量提供密码，不要把密码写入 Git。
 
 ## 启动和验证
 
@@ -40,13 +33,23 @@ mvn spring-boot:run
 curl http://localhost:8080/api/v1/health
 ```
 
-健康接口返回服务状态、版本和 UTC 时间戳；它不依赖业务数据。迁移由 Flyway 自动执行，脚本位于 [`src/main/resources/db/migration`](src/main/resources/db/migration)。全新数据库会依次执行 `V1__init.sql` 和 `V2__seed_categories.sql`，重复启动会由 Flyway 记录表自动跳过。
+健康接口返回 `{"code":0,"message":"success","data":{...},"requestId":"..."}` 统一结构。
 
-不连接外部服务也可以运行测试：
+## 数据库迁移
+
+迁移脚本位于 [`src/main/resources/db/migration`](src/main/resources/db/migration)：V1 创建 15 张核心表，V2 写入 3 个初始分类。三种使用路径都受支持：
+
+1. 开发 compose 首次启动已通过 initdb 建表：Flyway 启动时自动 baseline 到 V1，跳过已执行脚本；
+2. 手工执行过 SQL 的已有库：同样自动 baseline；
+3. 全新空库：Flyway 从 V1 顺序执行并记录 `flyway_schema_history`。
+
+不使用 Hibernate 自动建表；新增变更一律追加 V3、V4 版本脚本。手工执行与验证步骤见 [`database/README.md`](database/README.md)。
+
+## 测试
 
 ```bash
 mvn test
 mvn package
 ```
 
-测试配置会临时禁用数据库、Redis 和 MyBatis 自动配置，因此只验证应用上下文能够启动；`package` 会把 Flyway SQL 一并放入构建产物。
+测试通过排除数据源、Redis 和 MyBatis 自动配置，在不依赖外部服务的情况下验证应用上下文和 `/api/v1/health` 的响应契约。
