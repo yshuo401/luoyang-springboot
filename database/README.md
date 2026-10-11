@@ -45,3 +45,17 @@ SELECT * FROM ly_scenic_category ORDER BY sort_order;  -- 期望 3 条
 ```
 
 开发期联调数据示例见同目录 `DEMO_DATA.md`；正式景点资料应由管理端录入并附来源，不直接改业务表。
+
+## 当前开发库（2026-10-11 确认）
+
+实际运行的 compose 只设置了 root 密码 `1234` 和 `MYSQL_DATABASE: mydb`，业务库 `luoyang` 与 15 张表为手工创建，因此库中没有 `flyway_schema_history`。后端启动时 Flyway 会自动 baseline 到 V1，V2 幂等重放，不需要手工补历史。
+
+后端默认使用应用账号 `luoyang_app` 连接。若该账号尚未创建，在 MySQL 中执行：
+
+```sql
+CREATE USER IF NOT EXISTS 'luoyang_app'@'%' IDENTIFIED BY '1234';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON luoyang.* TO 'luoyang_app'@'%';
+FLUSH PRIVILEGES;
+```
+
+遗留的空库 `mydb` 确认无数据后可删除：`DROP DATABASE IF EXISTS mydb;`

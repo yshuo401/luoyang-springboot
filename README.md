@@ -18,8 +18,8 @@
 | 变量 | 默认值 | 说明 |
 | --- | --- | --- |
 | `DB_URL` | `jdbc:mysql://localhost:3308/luoyang?...` | 从 Java 进程访问 MySQL 的 JDBC 地址 |
-| `DB_USERNAME` | `luoyang_app` | Compose 创建的应用用户 |
-| `DB_PASSWORD` | `luoyang1234` | 与 compose 的 `MYSQL_PASSWORD` 一致 |
+| `DB_USERNAME` | `luoyang_app` | 开发库应用账号；若尚未创建可临时设 `DB_USERNAME=root` |
+| `DB_PASSWORD` | `1234` | 当前开发库密码；若连接其他库用环境变量覆盖 |
 | `REDIS_HOST` | `localhost` | Redis 主机；服务在 Compose 网络内运行时使用 `redis` |
 | `REDIS_PORT` | `6381` | 宿主机端口；Compose 网络内使用 `6379` |
 | `REDIS_PASSWORD` | 空 | 开发 compose 的 Redis 无密码；启用 requirepass 后填写 |
