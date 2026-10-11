@@ -1,0 +1,27 @@
+# Copy to application.yml only when you want a checked-in template for a new
+# environment. Prefer environment variables or an external config file for
+# real passwords.
+spring:
+  application:
+    name: luoyang-springboot
+  datasource:
+    url: jdbc:mysql://localhost:3308/luoyang?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: luoyang_app
+    password: change_this_mysql_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: localhost
+      port: 6381
+      password: change_this_redis_password
+  sql:
+    init:
+      mode: never
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+    baseline-on-migrate: false
+
+server:
+  port: 8080
