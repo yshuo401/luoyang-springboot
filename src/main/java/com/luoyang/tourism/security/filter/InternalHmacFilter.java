@@ -1,0 +1,91 @@
+package com.luoyang.tourism.security.filter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.luoyang.tourism.common.api.ApiResponse;
+import com.luoyang.tourism.common.api.ResultCode;
+import com.luoyang.tourism.config.AppProperties;
+import com.luoyang.tourism.support.CachedBodyHttpServletRequest;
+import com.luoyang.tourism.support.InternalHmacSigner;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.time.Instant;
+import java.util.HexFormat;
+
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE + 10)
+@RequiredArgsConstructor
+public class InternalHmacFilter extends OncePerRequestFilter {
+    private static final String TIMESTAMP = "X-Internal-Timestamp";
+    private static final String REQUEST_ID = "X-Internal-Request-Id";
+    private static final String SIGNATURE = "X-Internal-Signature";
+
+    private final AppProperties properties;
+    private final InternalHmacSigner signer;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return !request.getRequestURI().startsWith("/internal/");
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
+        String timestamp = request.getHeader(TIMESTAMP);
+        String requestId = request.getHeader(REQUEST_ID);
+        String signature = request.getHeader(SIGNATURE);
+        if (blank(timestamp) || blank(requestId) || blank(signature)
+                || blank(properties.getInternal().getSharedSecret())) {
+            reject(response);
+            return;
+        }
+
+        try {
+            long epochSeconds = Long.parseLong(timestamp);
+            if (Math.abs(Instant.now().getEpochSecond() - epochSeconds)
+                    > properties.getInternal().getTimestampToleranceSeconds()) {
+                reject(response);
+                return;
+            }
+        } catch (NumberFormatException exception) {
+            reject(response);
+            return;
+        }
+
+        CachedBodyHttpServletRequest wrapped = new CachedBodyHttpServletRequest(request);
+        String rawBody = new String(wrapped.body(), StandardCharsets.UTF_8);
+        String path = signer.pathWithSortedQuery(wrapped.getRequestURI(), wrapped.getQueryString());
+        String canonical = signer.canonical(timestamp, wrapped.getMethod(), path, requestId, rawBody);
+        String expected = signer.sign(properties.getInternal().getSharedSecret(), canonical);
+        if (!MessageDigest.isEqual(HexFormat.of().parseHex(expected), HexFormat.of().parseHex(signature.toLowerCase()))) {
+            reject(response);
+            return;
+        }
+        wrapped.setAttribute("internalVerified", true);
+        filterChain.doFilter(wrapped, response);
+    }
+
+    private boolean blank(String value) {
+        return value == null || value.isBlank();
+    }
+
+    private void reject(HttpServletResponse response) throws IOException {
+        ResultCode code = ResultCode.HMAC_INVALID;
+        response.setStatus(code.httpStatus().value());
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(response.getWriter(), ApiResponse.error(code.code(), code.defaultMessage()));
+    }
+}

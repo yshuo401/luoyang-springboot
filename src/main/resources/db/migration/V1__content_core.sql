@@ -1,0 +1,102 @@
+CREATE TABLE scenic_category (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    parent_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+    name VARCHAR(64) NOT NULL,
+    code VARCHAR(64) NOT NULL,
+    icon_file_id BIGINT UNSIGNED NULL,
+    description VARCHAR(500) NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    status TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    version INT UNSIGNED NOT NULL DEFAULT 0,
+    is_deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_scenic_category_code (code),
+    KEY idx_scenic_category_parent_status (parent_id, status, is_deleted, sort_order),
+    KEY idx_scenic_category_icon_file (icon_file_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE scenic_spot (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    category_id BIGINT UNSIGNED NOT NULL,
+    name VARCHAR(128) NOT NULL,
+    subtitle VARCHAR(255) NULL,
+    summary VARCHAR(1000) NULL,
+    cover_file_id BIGINT UNSIGNED NULL,
+    content_html MEDIUMTEXT NULL,
+    address VARCHAR(255) NULL,
+    longitude DECIMAL(10,7) NULL,
+    latitude DECIMAL(10,7) NULL,
+    open_time_desc VARCHAR(500) NULL,
+    ticket_info VARCHAR(1000) NULL,
+    play_duration_minutes INT UNSIGNED NULL,
+    phone VARCHAR(32) NULL,
+    traffic_info TEXT NULL,
+    tips TEXT NULL,
+    heat_score INT UNSIGNED NOT NULL DEFAULT 0,
+    recommendation_weight INT UNSIGNED NOT NULL DEFAULT 0,
+    status TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    published_at DATETIME(3) NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    version INT UNSIGNED NOT NULL DEFAULT 0,
+    is_deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    KEY idx_scenic_spot_category_status (category_id, status, is_deleted, published_at),
+    KEY idx_scenic_spot_status_heat (status, is_deleted, heat_score, recommendation_weight),
+    KEY idx_scenic_spot_name (name),
+    KEY idx_scenic_spot_published (published_at),
+    KEY idx_scenic_spot_cover_file (cover_file_id),
+    KEY idx_scenic_spot_updated (updated_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE scenic_image (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    spot_id BIGINT UNSIGNED NOT NULL,
+    file_id BIGINT UNSIGNED NOT NULL,
+    caption VARCHAR(255) NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    is_cover TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    created_by BIGINT UNSIGNED NULL,
+    is_deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    KEY idx_scenic_image_spot (spot_id, is_deleted, sort_order),
+    KEY idx_scenic_image_file (file_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE tag (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    tag_type TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    name VARCHAR(64) NOT NULL,
+    code VARCHAR(64) NOT NULL,
+    color VARCHAR(16) NULL,
+    description VARCHAR(255) NULL,
+    sort_order INT NOT NULL DEFAULT 0,
+    status TINYINT UNSIGNED NOT NULL DEFAULT 1,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+    created_by BIGINT UNSIGNED NULL,
+    updated_by BIGINT UNSIGNED NULL,
+    version INT UNSIGNED NOT NULL DEFAULT 0,
+    is_deleted TINYINT UNSIGNED NOT NULL DEFAULT 0,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_tag_type_code (tag_type, code),
+    KEY idx_tag_type_status (tag_type, status, is_deleted, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE scenic_spot_tag (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    spot_id BIGINT UNSIGNED NOT NULL,
+    tag_id BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    created_by BIGINT UNSIGNED NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_scenic_spot_tag (spot_id, tag_id),
+    KEY idx_scenic_spot_tag_tag (tag_id, spot_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

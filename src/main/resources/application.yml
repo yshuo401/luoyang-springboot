@@ -1,0 +1,126 @@
+spring:
+  application:
+    name: luoyang-smart-tourism
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:local}
+  config:
+    import: optional:file:./config/application-secret.yml
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:luoyang_tourism}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 2
+      maximum-pool-size: 12
+      connection-timeout: 10000
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    encoding: UTF-8
+    validate-on-migrate: true
+    clean-disabled: true
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      timeout: 3s
+      connect-timeout: 3s
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 55MB
+  jackson:
+    time-zone: Asia/Shanghai
+    serialization:
+      write-dates-as-timestamps: false
+
+server:
+  address: 0.0.0.0
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: framework
+  error:
+    include-message: never
+    include-stacktrace: never
+
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+    default-fetch-size: 100
+    default-statement-timeout: 20
+    jdbc-type-for-null: 'NULL'
+  type-aliases-package: com.luoyang.tourism.module
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: method
+  show-actuator: false
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    enable-footer: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  jwt:
+    issuer: ${JWT_ISSUER:luoyang-tourism}
+    app-secret: ${JWT_APP_SECRET:}
+    admin-secret: ${JWT_ADMIN_SECRET:}
+    app-access-ttl: ${JWT_APP_ACCESS_TTL:2h}
+    app-refresh-ttl: ${JWT_APP_REFRESH_TTL:30d}
+    admin-access-ttl: ${JWT_ADMIN_ACCESS_TTL:30m}
+    admin-refresh-ttl: ${JWT_ADMIN_REFRESH_TTL:7d}
+  ai:
+    base-url: ${AI_SERVICE_BASE_URL:http://127.0.0.1:8000}
+    connect-timeout: ${AI_CONNECT_TIMEOUT:2s}
+    read-timeout: ${AI_READ_TIMEOUT:28s}
+  internal:
+    shared-secret: ${INTERNAL_SHARED_SECRET:}
+    timestamp-tolerance-seconds: ${INTERNAL_TIMESTAMP_TOLERANCE_SECONDS:300}
+  oss:
+    endpoint: ${OSS_ENDPOINT:}
+    bucket: ${OSS_BUCKET:luoyang-smart-tourism}
+    access-key-id: ${OSS_ACCESS_KEY_ID:}
+    access-key-secret: ${OSS_ACCESS_KEY_SECRET:}
+    signed-url-expiry-seconds: ${OSS_SIGNED_URL_EXPIRY_SECONDS:1800}
+    max-image-bytes: ${OSS_MAX_IMAGE_BYTES:10485760}
+    max-document-bytes: ${OSS_MAX_DOCUMENT_BYTES:52428800}
+  wechat:
+    app-id: ${WECHAT_APP_ID:}
+    app-secret: ${WECHAT_APP_SECRET:}
+    mock-enabled: ${WECHAT_MOCK_ENABLED:false}
+  bootstrap-admin:
+    enabled: ${BOOTSTRAP_ADMIN_ENABLED:false}
+    username: ${BOOTSTRAP_ADMIN_USERNAME:admin}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD:}
+    nickname: ${BOOTSTRAP_ADMIN_NICKNAME:系统管理员}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+
+logging:
+  level:
+    root: INFO
+    com.luoyang.tourism: INFO
+    org.springframework.security: WARN
+    org.mybatis: WARN
+  pattern:
+    console: '%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{traceId:-}] [%thread] %logger{36} - %msg%n'
