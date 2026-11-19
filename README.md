@@ -28,6 +28,7 @@
 - 本机 application-local.yml 默认连接 192.168.100.128 的 MySQL/Redis；实际密码需通过环境变量注入。
 - FastAPI AI 服务未启动时，AI 接口按设计返回 50300；Java 侧不会直接执行 Agent/RAG。
 - OSS 真实密钥只保存在 Git 忽略的 config/application-secret.yml，不进入仓库。
+- 本地管理员默认不自动创建。首次启动前请显式设置 BOOTSTRAP_ADMIN_ENABLED=true、BOOTSTRAP_ADMIN_PASSWORD（至少 8 位且包含字母和数字）；创建成功后关闭该开关并修改密码。
 
 ## 1. 开发前门禁（必须阅读）
 
