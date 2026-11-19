@@ -69,7 +69,14 @@ public class InternalHmacFilter extends OncePerRequestFilter {
         String path = signer.pathWithSortedQuery(wrapped.getRequestURI(), wrapped.getQueryString());
         String canonical = signer.canonical(timestamp, wrapped.getMethod(), path, requestId, rawBody);
         String expected = signer.sign(properties.getInternal().getSharedSecret(), canonical);
-        if (!MessageDigest.isEqual(HexFormat.of().parseHex(expected), HexFormat.of().parseHex(signature.toLowerCase()))) {
+        try {
+            byte[] expectedBytes = HexFormat.of().parseHex(expected);
+            byte[] suppliedBytes = HexFormat.of().parseHex(signature.toLowerCase());
+            if (!MessageDigest.isEqual(expectedBytes, suppliedBytes)) {
+                reject(response);
+                return;
+            }
+        } catch (IllegalArgumentException exception) {
             reject(response);
             return;
         }

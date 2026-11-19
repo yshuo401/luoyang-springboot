@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luoyang.tourism.module.knowledge.mapper.KnowledgeMapper">
+    <insert id="insertDocument" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO knowledge_document
+        (title, category, file_id, doc_type, version_no, checksum, status, index_status, source_url,
+         effective_at, created_by, updated_by)
+        VALUES (#{title}, #{category}, #{fileId}, #{docType}, #{versionNo}, #{checksum}, #{status},
+                #{indexStatus}, #{sourceUrl}, #{effectiveAt}, #{createdBy}, #{updatedBy})
+    </insert>
+    <select id="selectDocument" resultType="com.luoyang.tourism.module.knowledge.entity.KnowledgeDocument">
+        SELECT * FROM knowledge_document WHERE id=#{id} AND is_deleted=0
+    </select>
+    <select id="selectDocuments" resultType="com.luoyang.tourism.module.knowledge.entity.KnowledgeDocument">
+        SELECT * FROM knowledge_document WHERE is_deleted=0
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%') OR category LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null"> AND status=#{status} </if>
+        ORDER BY id DESC LIMIT #{offset}, #{limit}
+    </select>
+    <select id="countDocuments" resultType="long">
+        SELECT COUNT(*) FROM knowledge_document WHERE is_deleted=0
+        <if test="keyword != null and keyword != ''">
+            AND (title LIKE CONCAT('%', #{keyword}, '%') OR category LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        <if test="status != null"> AND status=#{status} </if>
+    </select>
+    <update id="updateDocumentStatus">
+        UPDATE knowledge_document SET status=#{status}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="updateDocumentIndexStatus">
+        UPDATE knowledge_document SET index_status=#{indexStatus}, index_error=#{indexError},
+            chunk_count=COALESCE(#{chunkCount}, chunk_count), published_at=COALESCE(#{publishedAt}, published_at)
+        WHERE id=#{id} AND is_deleted=0
+    </update>
+    <update id="softDeleteDocument">
+        UPDATE knowledge_document SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <delete id="hardDeleteChunks">DELETE FROM knowledge_chunk WHERE document_id=#{documentId}</delete>
+    <insert id="insertChunk" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO knowledge_chunk
+        (document_id, chunk_index, vector_id, content, content_hash, char_count, metadata, enabled)
+        VALUES (#{documentId}, #{chunkIndex}, #{vectorId}, #{content}, #{contentHash},
+                #{charCount}, #{metadata}, #{enabled})
+    </insert>
+
+    <insert id="insertJob" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_index_job
+        (document_id, document_version, job_type, status, idempotency_key, progress,
+         total_chunks, processed_chunks, requested_by, started_at)
+        VALUES (#{documentId}, #{documentVersion}, #{jobType}, #{status}, #{idempotencyKey},
+                #{progress}, #{totalChunks}, #{processedChunks}, #{requestedBy}, #{startedAt})
+    </insert>
+    <select id="selectJob" resultType="com.luoyang.tourism.module.knowledge.entity.AiIndexJob">
+        SELECT * FROM ai_index_job WHERE id=#{id}
+    </select>
+    <select id="selectJobByIdempotency" resultType="com.luoyang.tourism.module.knowledge.entity.AiIndexJob">
+        SELECT * FROM ai_index_job WHERE idempotency_key=#{key}
+    </select>
+    <select id="selectJobs" resultType="com.luoyang.tourism.module.knowledge.entity.AiIndexJob">
+        SELECT * FROM ai_index_job
+        <where>
+            <if test="documentId != null"> AND document_id=#{documentId} </if>
+            <if test="status != null"> AND status=#{status} </if>
+        </where>
+        ORDER BY id DESC LIMIT #{offset}, #{limit}
+    </select>
+    <select id="countJobs" resultType="long">
+        SELECT COUNT(*) FROM ai_index_job
+        <where>
+            <if test="documentId != null"> AND document_id=#{documentId} </if>
+            <if test="status != null"> AND status=#{status} </if>
+        </where>
+    </select>
+    <select id="selectRunningJobs" resultType="com.luoyang.tourism.module.knowledge.entity.AiIndexJob">
+        SELECT * FROM ai_index_job WHERE status IN (0,1) AND external_job_id IS NOT NULL
+        ORDER BY id ASC LIMIT #{limit}
+    </select>
+    <update id="markJobSubmitted">
+        UPDATE ai_index_job SET status=1, external_job_id=#{externalJobId}, progress=#{progress},
+            started_at=COALESCE(started_at, CURRENT_TIMESTAMP(3)), updated_at=CURRENT_TIMESTAMP(3)
+        WHERE id=#{id}
+    </update>
+    <update id="updateJobProgress">
+        UPDATE ai_index_job SET progress=COALESCE(#{progress}, progress),
+            total_chunks=COALESCE(#{totalChunks}, total_chunks),
+            processed_chunks=COALESCE(#{processedChunks}, processed_chunks),
+            updated_at=CURRENT_TIMESTAMP(3)
+        WHERE id=#{id}
+    </update>
+    <update id="markJobSucceeded">
+        UPDATE ai_index_job SET status=2, progress=COALESCE(#{progress}, 100),
+            total_chunks=COALESCE(#{totalChunks}, total_chunks), processed_chunks=COALESCE(#{totalChunks}, processed_chunks),
+            finished_at=CURRENT_TIMESTAMP(3), updated_at=CURRENT_TIMESTAMP(3)
+        WHERE id=#{id}
+    </update>
+    <update id="markJobFailed">
+        UPDATE ai_index_job SET status=3, error_message=#{errorMessage}, finished_at=CURRENT_TIMESTAMP(3),
+            updated_at=CURRENT_TIMESTAMP(3) WHERE id=#{id}
+    </update>
+</mapper>
