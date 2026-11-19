@@ -18,6 +18,7 @@ app:
   internal:
     shared-secret: ${INTERNAL_SHARED_SECRET:local-dev-internal-hmac-secret-change-before-use-2026}
   oss:
+    enabled: true
     endpoint: ${OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
   wechat:
     mock-enabled: ${WECHAT_MOCK_ENABLED:true}

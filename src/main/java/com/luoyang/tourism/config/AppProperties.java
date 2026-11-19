@@ -44,6 +44,7 @@ public class AppProperties {
 
     @Data
     public static class Oss {
+        private boolean enabled = false;
         private String endpoint;
         private String bucket = "luoyang-smart-tourism";
         private String accessKeyId;
@@ -53,7 +54,7 @@ public class AppProperties {
         private long maxDocumentBytes = 50 * 1024 * 1024L;
 
         public boolean isConfigured() {
-            return endpoint != null && !endpoint.isBlank()
+            return enabled && endpoint != null && !endpoint.isBlank()
                     && bucket != null && !bucket.isBlank()
                     && accessKeyId != null && !accessKeyId.isBlank()
                     && accessKeySecret != null && !accessKeySecret.isBlank();

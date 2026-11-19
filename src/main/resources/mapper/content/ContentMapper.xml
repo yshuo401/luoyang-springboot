@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luoyang.tourism.module.content.mapper.ContentMapper">
+
+    <select id="selectCategories" resultType="com.luoyang.tourism.module.content.entity.ScenicCategory">
+        SELECT * FROM scenic_category
+        WHERE is_deleted = 0
+        <if test="!admin"> AND status = 1 </if>
+        <if test="status != null"> AND status = #{status} </if>
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%') OR code LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY sort_order ASC, id ASC
+    </select>
+
+    <select id="selectCategory" resultType="com.luoyang.tourism.module.content.entity.ScenicCategory">
+        SELECT * FROM scenic_category WHERE id = #{id} AND is_deleted = 0
+    </select>
+
+    <insert id="insertCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO scenic_category
+        (parent_id, name, code, icon_file_id, description, sort_order, status, created_by, updated_by)
+        VALUES (#{parentId}, #{name}, #{code}, #{iconFileId}, #{description}, #{sortOrder}, #{status},
+                #{createdBy}, #{updatedBy})
+    </insert>
+
+    <update id="updateCategory">
+        UPDATE scenic_category SET parent_id=#{parentId}, name=#{name}, code=#{code},
+            icon_file_id=#{iconFileId}, description=#{description}, sort_order=#{sortOrder},
+            status=#{status}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <update id="updateCategoryStatus">
+        UPDATE scenic_category SET status=#{status}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <update id="softDeleteCategory">
+        UPDATE scenic_category SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <select id="countChildCategories" resultType="int">
+        SELECT COUNT(*) FROM scenic_category WHERE parent_id=#{id} AND is_deleted=0
+    </select>
+    <select id="countSpotsInCategory" resultType="int">
+        SELECT COUNT(*) FROM scenic_spot WHERE category_id=#{id} AND is_deleted=0
+    </select>
+    <select id="countCategoryCode" resultType="int">
+        SELECT COUNT(*) FROM scenic_category WHERE code=#{code} AND is_deleted=0
+        <if test="excludeId != null"> AND id != #{excludeId} </if>
+    </select>
+
+    <select id="selectTags" resultType="com.luoyang.tourism.module.content.entity.Tag">
+        SELECT * FROM tag
+        WHERE is_deleted=0
+        <if test="!admin"> AND status=1 </if>
+        <if test="tagType != null"> AND tag_type=#{tagType} </if>
+        <if test="status != null"> AND status=#{status} </if>
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%') OR code LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY sort_order ASC, id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countTags" resultType="long">
+        SELECT COUNT(*) FROM tag WHERE is_deleted=0
+        <if test="!admin"> AND status=1 </if>
+        <if test="tagType != null"> AND tag_type=#{tagType} </if>
+        <if test="status != null"> AND status=#{status} </if>
+        <if test="keyword != null and keyword != ''">
+            AND (name LIKE CONCAT('%', #{keyword}, '%') OR code LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+    </select>
+
+    <select id="selectTag" resultType="com.luoyang.tourism.module.content.entity.Tag">
+        SELECT * FROM tag WHERE id=#{id} AND is_deleted=0
+    </select>
+
+    <select id="selectTagsByIds" resultType="com.luoyang.tourism.module.content.entity.Tag">
+        SELECT * FROM tag WHERE is_deleted=0 AND status=1
+        <choose>
+            <when test="ids != null and ids.size() > 0">
+                AND id IN <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+            </when>
+            <otherwise>AND 1=0</otherwise>
+        </choose>
+    </select>
+
+    <select id="selectTagsBySpotId" resultType="com.luoyang.tourism.module.content.entity.Tag">
+        SELECT t.* FROM tag t JOIN scenic_spot_tag st ON st.tag_id=t.id
+        WHERE st.spot_id=#{spotId} AND t.is_deleted=0 AND t.status=1
+        ORDER BY t.sort_order, t.id
+    </select>
+
+    <insert id="insertTag" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tag (tag_type, name, code, color, description, sort_order, status, created_by, updated_by)
+        VALUES (#{tagType}, #{name}, #{code}, #{color}, #{description}, #{sortOrder}, #{status}, #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="updateTag">
+        UPDATE tag SET tag_type=#{tagType}, name=#{name}, code=#{code}, color=#{color},
+            description=#{description}, sort_order=#{sortOrder}, status=#{status},
+            updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="updateTagStatus">
+        UPDATE tag SET status=#{status}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="softDeleteTag">
+        UPDATE tag SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <select id="countTagCode" resultType="int">
+        SELECT COUNT(*) FROM tag WHERE tag_type=#{tagType} AND code=#{code} AND is_deleted=0
+        <if test="excludeId != null"> AND id != #{excludeId} </if>
+    </select>
+    <select id="countSpotTagRefs" resultType="int">
+        SELECT COUNT(*) FROM scenic_spot_tag WHERE tag_id=#{tagId}
+    </select>
+
+    <sql id="spotWhere">
+        <where>
+            s.is_deleted=0 AND c.is_deleted=0
+            <if test="!admin"> AND s.status=1 </if>
+            <if test="status != null"> AND s.status=#{status} </if>
+            <if test="categoryId != null"> AND s.category_id=#{categoryId} </if>
+            <if test="keyword != null and keyword != ''">
+                AND (s.name LIKE CONCAT('%', #{keyword}, '%') OR s.summary LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="tagIds != null and tagIds.size() > 0">
+                AND EXISTS (
+                    SELECT 1 FROM scenic_spot_tag st
+                    WHERE st.spot_id=s.id AND st.tag_id IN
+                    <foreach collection="tagIds" item="tagId" open="(" separator="," close=")">#{tagId}</foreach>
+                )
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectSpots" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+        SELECT s.*, c.name AS category_name
+        FROM scenic_spot s JOIN scenic_category c ON c.id=s.category_id
+        <include refid="spotWhere"/>
+        <choose>
+            <when test="sort == 'LATEST'">ORDER BY s.published_at DESC, s.id DESC</when>
+            <when test="sort == 'SORT_ORDER'">ORDER BY s.recommendation_weight DESC, s.heat_score DESC, s.id DESC</when>
+            <when test="sort == 'HEAT_DESC'">ORDER BY s.heat_score DESC, s.recommendation_weight DESC, s.id DESC</when>
+            <when test="admin">ORDER BY s.updated_at DESC, s.id DESC</when>
+            <otherwise>ORDER BY s.heat_score DESC, s.recommendation_weight DESC, s.id DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countSpots" resultType="long">
+        SELECT COUNT(*) FROM scenic_spot s JOIN scenic_category c ON c.id=s.category_id
+        <include refid="spotWhere"/>
+    </select>
+
+    <select id="selectSpot" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+        SELECT s.*, c.name AS category_name FROM scenic_spot s
+        JOIN scenic_category c ON c.id=s.category_id
+        WHERE s.id=#{id} AND s.is_deleted=0
+    </select>
+
+    <select id="selectRelatedSpots" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+        SELECT s.*, c.name AS category_name FROM scenic_spot s
+        JOIN scenic_category c ON c.id=s.category_id
+        WHERE s.id != #{id} AND s.status=1 AND s.is_deleted=0 AND c.is_deleted=0
+          AND (s.category_id=#{categoryId} OR EXISTS (
+              SELECT 1 FROM scenic_spot_tag st1
+              JOIN scenic_spot_tag st2 ON st2.tag_id=st1.tag_id
+              WHERE st1.spot_id=#{id} AND st2.spot_id=s.id
+          ))
+        ORDER BY s.heat_score DESC, s.recommendation_weight DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectPublishedCandidates" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+        SELECT s.*, c.name AS category_name FROM scenic_spot s
+        JOIN scenic_category c ON c.id=s.category_id
+        WHERE s.status=1 AND s.is_deleted=0 AND c.is_deleted=0
+        ORDER BY s.heat_score DESC, s.recommendation_weight DESC
+        LIMIT #{limit}
+    </select>
+
+    <insert id="insertSpot" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO scenic_spot
+        (category_id, name, subtitle, summary, cover_file_id, content_html, address, longitude, latitude,
+         open_time_desc, ticket_info, play_duration_minutes, phone, traffic_info, tips, heat_score,
+         recommendation_weight, status, published_at, created_by, updated_by)
+        VALUES (#{categoryId}, #{name}, #{subtitle}, #{summary}, #{coverFileId}, #{contentHtml}, #{address},
+                #{longitude}, #{latitude}, #{openTimeDesc}, #{ticketInfo}, #{playDurationMinutes}, #{phone},
+                #{trafficInfo}, #{tips}, #{heatScore}, #{recommendationWeight}, #{status}, #{publishedAt},
+                #{createdBy}, #{updatedBy})
+    </insert>
+
+    <update id="updateSpot">
+        UPDATE scenic_spot SET category_id=#{categoryId}, name=#{name}, subtitle=#{subtitle},
+            summary=#{summary}, cover_file_id=#{coverFileId}, content_html=#{contentHtml},
+            address=#{address}, longitude=#{longitude}, latitude=#{latitude},
+            open_time_desc=#{openTimeDesc}, ticket_info=#{ticketInfo},
+            play_duration_minutes=#{playDurationMinutes}, phone=#{phone}, traffic_info=#{trafficInfo},
+            tips=#{tips}, recommendation_weight=#{recommendationWeight}, updated_by=#{updatedBy},
+            version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <update id="updateSpotStatus">
+        UPDATE scenic_spot SET status=#{status}, published_at=COALESCE(#{publishedAt}, published_at),
+            updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <update id="updateSpotWeight">
+        UPDATE scenic_spot SET recommendation_weight=#{weight}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <update id="softDeleteSpot">
+        UPDATE scenic_spot SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <select id="selectSpotImages" resultType="com.luoyang.tourism.module.content.entity.ScenicImage">
+        SELECT * FROM scenic_image WHERE spot_id=#{spotId} AND is_deleted=0 ORDER BY sort_order, id
+    </select>
+    <update id="deleteSpotImages">
+        UPDATE scenic_image SET is_deleted=1 WHERE spot_id=#{spotId} AND is_deleted=0
+    </update>
+    <insert id="insertSpotImage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO scenic_image (spot_id, file_id, caption, sort_order, is_cover, created_by)
+        VALUES (#{spotId}, #{fileId}, #{caption}, #{sortOrder}, #{isCover}, #{createdBy})
+    </insert>
+    <delete id="deleteSpotTags">DELETE FROM scenic_spot_tag WHERE spot_id=#{spotId}</delete>
+    <insert id="insertSpotTag">
+        INSERT INTO scenic_spot_tag (spot_id, tag_id, created_by) VALUES (#{spotId}, #{tagId}, #{createdBy})
+    </insert>
+
+    <sql id="guideWhere">
+        <where>
+            is_deleted=0
+            <if test="!admin"> AND status=1 </if>
+            <if test="status != null"> AND status=#{status} </if>
+            <if test="keyword != null and keyword != ''">
+                AND (title LIKE CONCAT('%', #{keyword}, '%') OR summary LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectGuides" resultType="com.luoyang.tourism.module.content.entity.TravelGuide">
+        SELECT * FROM travel_guide
+        <include refid="guideWhere"/>
+        <choose>
+            <when test="sort == 'LATEST'">ORDER BY published_at DESC, id DESC</when>
+            <when test="sort == 'SORT_ORDER'">ORDER BY recommendation_weight DESC, heat_score DESC, id DESC</when>
+            <when test="sort == 'HEAT_DESC'">ORDER BY heat_score DESC, recommendation_weight DESC, id DESC</when>
+            <when test="admin">ORDER BY updated_at DESC, id DESC</when>
+            <otherwise>ORDER BY heat_score DESC, id DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countGuides" resultType="long">
+        SELECT COUNT(*) FROM travel_guide <include refid="guideWhere"/>
+    </select>
+
+    <select id="selectGuide" resultType="com.luoyang.tourism.module.content.entity.TravelGuide">
+        SELECT * FROM travel_guide WHERE id=#{id} AND is_deleted=0
+    </select>
+
+    <select id="selectGuideDays" resultType="com.luoyang.tourism.module.content.entity.GuideDay">
+        SELECT * FROM guide_day WHERE guide_id=#{guideId} AND is_deleted=0 ORDER BY day_no
+    </select>
+
+    <select id="selectGuideDaySpots" resultType="com.luoyang.tourism.module.content.entity.GuideDaySpot">
+        SELECT * FROM guide_day_spot WHERE guide_id=#{guideId} AND is_deleted=0
+        ORDER BY guide_day_id, sort_order, id
+    </select>
+
+    <insert id="insertGuide" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO travel_guide
+        (title, slug, summary, cover_file_id, author_name, content_html, travel_days, difficulty,
+         suitable_season, heat_score, recommendation_weight, status, published_at, created_by, updated_by)
+        VALUES (#{title}, #{slug}, #{summary}, #{coverFileId}, #{authorName}, #{contentHtml}, #{travelDays},
+                #{difficulty}, #{suitableSeason}, #{heatScore}, #{recommendationWeight}, #{status},
+                #{publishedAt}, #{createdBy}, #{updatedBy})
+    </insert>
+
+    <update id="updateGuide">
+        UPDATE travel_guide SET title=#{title}, slug=#{slug}, summary=#{summary}, cover_file_id=#{coverFileId},
+            author_name=#{authorName}, content_html=#{contentHtml}, travel_days=#{travelDays},
+            difficulty=#{difficulty}, suitable_season=#{suitableSeason},
+            recommendation_weight=#{recommendationWeight}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <update id="updateGuideStatus">
+        UPDATE travel_guide SET status=#{status}, published_at=COALESCE(#{publishedAt}, published_at),
+            updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <update id="softDeleteGuide">
+        UPDATE travel_guide SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+
+    <delete id="deleteGuideDaysHard">DELETE FROM guide_day WHERE guide_id=#{guideId}</delete>
+    <insert id="insertGuideDay" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO guide_day (guide_id, day_no, title, summary, traffic_tip, accommodation_tip)
+        VALUES (#{guideId}, #{dayNo}, #{title}, #{summary}, #{trafficTip}, #{accommodationTip})
+    </insert>
+    <delete id="deleteGuideDaySpotsHard">DELETE FROM guide_day_spot WHERE guide_id=#{guideId}</delete>
+    <insert id="insertGuideDaySpot" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO guide_day_spot (guide_day_id, guide_id, spot_id, sort_order, stay_minutes, note)
+        VALUES (#{guideDayId}, #{guideId}, #{spotId}, #{sortOrder}, #{stayMinutes}, #{note})
+    </insert>
+
+    <select id="selectFoodCategories" resultType="com.luoyang.tourism.module.content.entity.FoodCategory">
+        SELECT * FROM food_category WHERE is_deleted=0
+        <if test="!admin"> AND status=1 </if>
+        <if test="status != null"> AND status=#{status} </if>
+        ORDER BY sort_order, id
+    </select>
+    <select id="selectFoodCategory" resultType="com.luoyang.tourism.module.content.entity.FoodCategory">
+        SELECT * FROM food_category WHERE id=#{id} AND is_deleted=0
+    </select>
+    <insert id="insertFoodCategory" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO food_category (name, code, icon_file_id, sort_order, status, created_by, updated_by)
+        VALUES (#{name}, #{code}, #{iconFileId}, #{sortOrder}, #{status}, #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="updateFoodCategory">
+        UPDATE food_category SET name=#{name}, code=#{code}, icon_file_id=#{iconFileId},
+            sort_order=#{sortOrder}, status=#{status}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="updateFoodCategoryStatus">
+        UPDATE food_category SET status=#{status}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="softDeleteFoodCategory">
+        UPDATE food_category SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <select id="countFoodsInCategory" resultType="int">
+        SELECT COUNT(*) FROM food WHERE food_category_id=#{id} AND is_deleted=0
+    </select>
+    <select id="countFoodCategoryCode" resultType="int">
+        SELECT COUNT(*) FROM food_category WHERE code=#{code} AND is_deleted=0
+        <if test="excludeId != null"> AND id != #{excludeId} </if>
+    </select>
+
+    <sql id="foodWhere">
+        <where>
+            f.is_deleted=0 AND fc.is_deleted=0
+            <if test="!admin"> AND f.status=1 </if>
+            <if test="status != null"> AND f.status=#{status} </if>
+            <if test="categoryId != null"> AND f.food_category_id=#{categoryId} </if>
+            <if test="keyword != null and keyword != ''">
+                AND (f.name LIKE CONCAT('%', #{keyword}, '%') OR f.summary LIKE CONCAT('%', #{keyword}, '%'))
+            </if>
+            <if test="flavor != null and flavor != ''">
+                AND JSON_SEARCH(f.flavor_tags, 'one', CONCAT('%', #{flavor}, '%')) IS NOT NULL
+            </if>
+        </where>
+    </sql>
+
+    <select id="selectFoods" resultType="com.luoyang.tourism.module.content.entity.Food">
+        SELECT f.*, fc.name AS category_name FROM food f JOIN food_category fc ON fc.id=f.food_category_id
+        <include refid="foodWhere"/>
+        <choose>
+            <when test="sort == 'LATEST'">ORDER BY f.published_at DESC, f.id DESC</when>
+            <when test="sort == 'SORT_ORDER'">ORDER BY f.recommendation_weight DESC, f.heat_score DESC, f.id DESC</when>
+            <when test="sort == 'HEAT_DESC'">ORDER BY f.heat_score DESC, f.recommendation_weight DESC, f.id DESC</when>
+            <when test="admin">ORDER BY f.updated_at DESC, f.id DESC</when>
+            <otherwise>ORDER BY f.heat_score DESC, f.id DESC</otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+    <select id="countFoods" resultType="long">
+        SELECT COUNT(*) FROM food f JOIN food_category fc ON fc.id=f.food_category_id
+        <include refid="foodWhere"/>
+    </select>
+    <select id="selectFood" resultType="com.luoyang.tourism.module.content.entity.Food">
+        SELECT f.*, fc.name AS category_name FROM food f JOIN food_category fc ON fc.id=f.food_category_id
+        WHERE f.id=#{id} AND f.is_deleted=0
+    </select>
+    <insert id="insertFood" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO food
+        (food_category_id, name, summary, cover_file_id, description, price_range, flavor_tags,
+         recommend_shops, area, heat_score, recommendation_weight, status, published_at, created_by, updated_by)
+        VALUES (#{foodCategoryId}, #{name}, #{summary}, #{coverFileId}, #{description}, #{priceRange},
+                #{flavorTags}, #{recommendShops}, #{area}, #{heatScore}, #{recommendationWeight}, #{status},
+                #{publishedAt}, #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="updateFood">
+        UPDATE food SET food_category_id=#{foodCategoryId}, name=#{name}, summary=#{summary},
+            cover_file_id=#{coverFileId}, description=#{description}, price_range=#{priceRange},
+            flavor_tags=#{flavorTags}, recommend_shops=#{recommendShops}, area=#{area},
+            recommendation_weight=#{recommendationWeight}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="updateFoodStatus">
+        UPDATE food SET status=#{status}, published_at=COALESCE(#{publishedAt}, published_at),
+            updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="softDeleteFood">
+        UPDATE food SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <select id="selectFoodImages" resultType="com.luoyang.tourism.module.content.entity.FoodImage">
+        SELECT * FROM food_image WHERE food_id=#{foodId} AND is_deleted=0 ORDER BY sort_order, id
+    </select>
+    <update id="deleteFoodImages">
+        UPDATE food_image SET is_deleted=1 WHERE food_id=#{foodId} AND is_deleted=0
+    </update>
+    <insert id="insertFoodImage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO food_image (food_id, file_id, caption, sort_order, is_cover, created_by)
+        VALUES (#{foodId}, #{fileId}, #{caption}, #{sortOrder}, #{isCover}, #{createdBy})
+    </insert>
+
+    <select id="selectPublicBanners" resultType="com.luoyang.tourism.module.content.entity.Banner">
+        SELECT * FROM banner
+        WHERE is_deleted=0 AND status=1
+        <if test="position != null and position != ''"> AND position=#{position} </if>
+          AND (start_at IS NULL OR start_at &lt;= #{now})
+          AND (end_at IS NULL OR end_at &gt;= #{now})
+        ORDER BY sort_order, id
+    </select>
+    <select id="selectBanners" resultType="com.luoyang.tourism.module.content.entity.Banner">
+        SELECT * FROM banner WHERE is_deleted=0
+        <if test="position != null and position != ''"> AND position=#{position} </if>
+        <if test="status != null"> AND status=#{status} </if>
+        ORDER BY sort_order, id DESC LIMIT #{offset}, #{limit}
+    </select>
+    <select id="countBanners" resultType="long">
+        SELECT COUNT(*) FROM banner WHERE is_deleted=0
+        <if test="position != null and position != ''"> AND position=#{position} </if>
+        <if test="status != null"> AND status=#{status} </if>
+    </select>
+    <select id="selectBanner" resultType="com.luoyang.tourism.module.content.entity.Banner">
+        SELECT * FROM banner WHERE id=#{id} AND is_deleted=0
+    </select>
+    <insert id="insertBanner" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO banner (title, subtitle, image_file_id, link_type, target_id, target_path, position,
+            sort_order, status, start_at, end_at, created_by, updated_by)
+        VALUES (#{title}, #{subtitle}, #{imageFileId}, #{linkType}, #{targetId}, #{targetPath}, #{position},
+                #{sortOrder}, #{status}, #{startAt}, #{endAt}, #{createdBy}, #{updatedBy})
+    </insert>
+    <update id="updateBanner">
+        UPDATE banner SET title=#{title}, subtitle=#{subtitle}, image_file_id=#{imageFileId},
+            link_type=#{linkType}, target_id=#{targetId}, target_path=#{targetPath}, position=#{position},
+            sort_order=#{sortOrder}, status=#{status}, start_at=#{startAt}, end_at=#{endAt},
+            updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="updateBannerStatus">
+        UPDATE banner SET status=#{status}, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+    <update id="softDeleteBanner">
+        UPDATE banner SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
+        WHERE id=#{id} AND version=#{version} AND is_deleted=0
+    </update>
+</mapper>
