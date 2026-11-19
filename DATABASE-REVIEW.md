@@ -1,8 +1,8 @@
 # 31 张业务表审查报告
 
-> 审查日期：2026-11-19  
-> 审查对象：springboot/src/main/resources/db/migration 下的 Flyway 脚本  
-> 数据库：MySQL 8.0，utf8mb4  
+> 审查日期：2026-11-19
+> 审查对象：springboot/src/main/resources/db/migration 下的 Flyway 脚本
+> 数据库：MySQL 8.0，utf8mb4
 > 结论：31 张业务表均已实际执行成功，物理外键数量为 0。
 
 ## 1. 表清单核对
