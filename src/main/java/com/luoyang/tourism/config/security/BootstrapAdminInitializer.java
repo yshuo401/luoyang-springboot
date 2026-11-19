@@ -1,17 +1,21 @@
 package com.luoyang.tourism.config.security;
 
 import com.luoyang.tourism.config.AppProperties;
-import com.luoyang.tourism.module.auth.entity.AdminRole;
-import com.luoyang.tourism.module.auth.entity.AdminUser;
 import com.luoyang.tourism.module.auth.mapper.AuthMapper;
-import lombok.RequiredArgsConstructor;
+import com.luoyang.tourism.module.auth.pojo.entity.AdminRole;
+import com.luoyang.tourism.module.auth.pojo.entity.AdminUser;
 import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * BootstrapAdminInitializer 配置组件。
+ * <p>负责基础设施、安全或 Web 相关配置。</p>
+ */
 @Slf4j
 @Component
 @RequiredArgsConstructor

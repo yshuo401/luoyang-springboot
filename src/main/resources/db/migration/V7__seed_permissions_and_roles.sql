@@ -1,3 +1,7 @@
+-- 初始化权限、角色和角色权限关系。
+-- 说明：本脚本不声明物理外键，关联完整性由 Service 层维护。
+
+-- 权限字典：菜单权限和操作权限统一登记。
 INSERT INTO admin_permission (parent_id, permission_name, permission_code, permission_type, route_path, component_path, sort_order, status)
 VALUES
 (0, '仪表盘', 'dashboard:read', 2, '/dashboard', 'views/dashboard/index', 10, 1),

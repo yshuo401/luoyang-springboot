@@ -7,6 +7,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * OssConfig 配置组件。
+ * <p>负责基础设施、安全或 Web 相关配置。</p>
+ */
 @Configuration
 public class OssConfig {
 

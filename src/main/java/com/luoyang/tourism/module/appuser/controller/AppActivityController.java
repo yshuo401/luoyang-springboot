@@ -2,17 +2,18 @@ package com.luoyang.tourism.module.appuser.controller;
 
 import com.luoyang.tourism.common.api.ApiResponse;
 import com.luoyang.tourism.common.api.PageResult;
-import com.luoyang.tourism.module.appuser.dto.AppUserDtos;
+import com.luoyang.tourism.module.appuser.pojo.dto.AppUserDtos;
+import com.luoyang.tourism.module.appuser.pojo.vo.AppUserVos;
 import com.luoyang.tourism.module.appuser.service.AppUserService;
 import com.luoyang.tourism.module.appuser.service.RecommendationService;
-import com.luoyang.tourism.module.appuser.vo.AppUserVos;
 import com.luoyang.tourism.security.principal.AuthClaims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -25,8 +26,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
+/**
+ * AppActivityController 控制器。
+ * <p>负责接收 HTTP 请求、校验参数，并委托对应的业务接口处理。</p>
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/app")

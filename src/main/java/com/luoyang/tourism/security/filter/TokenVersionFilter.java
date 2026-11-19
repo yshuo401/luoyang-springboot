@@ -3,17 +3,19 @@ package com.luoyang.tourism.security.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.luoyang.tourism.common.api.ApiResponse;
 import com.luoyang.tourism.common.api.ResultCode;
-import com.luoyang.tourism.module.auth.entity.AdminUser;
-import com.luoyang.tourism.module.auth.entity.AppUser;
 import com.luoyang.tourism.module.auth.mapper.AuthMapper;
+import com.luoyang.tourism.module.auth.pojo.entity.AdminUser;
+import com.luoyang.tourism.module.auth.pojo.entity.AppUser;
 import com.luoyang.tourism.security.principal.AuthClaims;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,9 +23,10 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
+/**
+ * TokenVersionFilter 安全组件。
+ * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 100)
 @RequiredArgsConstructor

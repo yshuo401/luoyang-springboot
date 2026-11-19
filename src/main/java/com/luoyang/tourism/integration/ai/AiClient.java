@@ -5,16 +5,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.f4b6a3.ulid.UlidCreator;
 import com.luoyang.tourism.config.AppProperties;
 import com.luoyang.tourism.support.InternalHmacSigner;
+import java.net.http.HttpClient;
+import java.time.Instant;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
 
-import java.net.http.HttpClient;
-import java.time.Instant;
-
+/**
+ * AiClient 外部服务集成组件。
+ * <p>集中封装第三方 HTTP、对象存储或模型服务调用。</p>
+ */
 @Service
 public class AiClient {
     private static final String TIMESTAMP = "X-Internal-Timestamp";

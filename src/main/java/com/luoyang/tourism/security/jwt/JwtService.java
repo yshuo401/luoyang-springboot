@@ -4,6 +4,9 @@ import com.github.f4b6a3.ulid.UlidCreator;
 import com.luoyang.tourism.common.api.ResultCode;
 import com.luoyang.tourism.common.exception.BizException;
 import com.luoyang.tourism.config.AppProperties;
+import java.time.Instant;
+import java.util.List;
+import java.util.Set;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -13,10 +16,10 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.security.oauth2.jwt.JwtException;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Set;
-
+/**
+ * JwtService 安全组件。
+ * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ */
 public class JwtService {
     private final AppProperties properties;
     private final JwtEncoder appEncoder;

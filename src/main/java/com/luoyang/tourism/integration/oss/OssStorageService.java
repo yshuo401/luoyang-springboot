@@ -1,18 +1,21 @@
 package com.luoyang.tourism.integration.oss;
 
-import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.ObjectMetadata;
 import com.aliyun.oss.model.PutObjectResult;
+import com.aliyun.oss.OSS;
 import com.luoyang.tourism.common.api.ResultCode;
 import com.luoyang.tourism.common.exception.BizException;
 import com.luoyang.tourism.config.AppProperties;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.stereotype.Service;
-
 import java.io.ByteArrayInputStream;
 import java.net.URL;
 import java.util.Date;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.stereotype.Service;
 
+/**
+ * OssStorageService 外部服务集成组件。
+ * <p>集中封装第三方 HTTP、对象存储或模型服务调用。</p>
+ */
 @Service
 public class OssStorageService {
     private final AppProperties properties;

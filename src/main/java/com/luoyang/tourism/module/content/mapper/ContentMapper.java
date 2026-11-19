@@ -1,22 +1,25 @@
 package com.luoyang.tourism.module.content.mapper;
 
-import com.luoyang.tourism.module.content.entity.Banner;
-import com.luoyang.tourism.module.content.entity.Food;
-import com.luoyang.tourism.module.content.entity.FoodCategory;
-import com.luoyang.tourism.module.content.entity.FoodImage;
-import com.luoyang.tourism.module.content.entity.GuideDay;
-import com.luoyang.tourism.module.content.entity.GuideDaySpot;
-import com.luoyang.tourism.module.content.entity.ScenicCategory;
-import com.luoyang.tourism.module.content.entity.ScenicImage;
-import com.luoyang.tourism.module.content.entity.ScenicSpot;
-import com.luoyang.tourism.module.content.entity.Tag;
-import com.luoyang.tourism.module.content.entity.TravelGuide;
+import com.luoyang.tourism.module.content.pojo.entity.Banner;
+import com.luoyang.tourism.module.content.pojo.entity.Food;
+import com.luoyang.tourism.module.content.pojo.entity.FoodCategory;
+import com.luoyang.tourism.module.content.pojo.entity.FoodImage;
+import com.luoyang.tourism.module.content.pojo.entity.GuideDay;
+import com.luoyang.tourism.module.content.pojo.entity.GuideDaySpot;
+import com.luoyang.tourism.module.content.pojo.entity.ScenicCategory;
+import com.luoyang.tourism.module.content.pojo.entity.ScenicImage;
+import com.luoyang.tourism.module.content.pojo.entity.ScenicSpot;
+import com.luoyang.tourism.module.content.pojo.entity.Tag;
+import com.luoyang.tourism.module.content.pojo.entity.TravelGuide;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+/**
+ * ContentMapper MyBatis 数据访问接口。
+ * <p>SQL 只在本层维护，业务层不得拼接用户可控 SQL。</p>
+ */
 @Mapper
 public interface ContentMapper {
     List<ScenicCategory> selectCategories(@Param("admin") boolean admin,

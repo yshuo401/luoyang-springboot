@@ -2,7 +2,6 @@ package com.luoyang.tourism.unit.integration;
 
 import com.luoyang.tourism.support.InternalHmacSigner;
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class InternalHmacSignerTest {

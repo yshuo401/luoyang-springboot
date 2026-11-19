@@ -1,11 +1,9 @@
 package com.luoyang.tourism.unit.security;
 
 import com.luoyang.tourism.config.security.SecurityConfig;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.oauth2.jwt.Jwt;
-
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class JwtAuthoritiesTest {

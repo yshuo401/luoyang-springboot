@@ -1,18 +1,21 @@
 package com.luoyang.tourism.module.system.mapper;
 
-import com.luoyang.tourism.module.auth.entity.AdminPermission;
-import com.luoyang.tourism.module.auth.entity.AdminRole;
-import com.luoyang.tourism.module.auth.entity.AdminUser;
-import com.luoyang.tourism.module.auth.entity.AppUser;
-import com.luoyang.tourism.module.system.entity.AdminOperationLog;
-import com.luoyang.tourism.module.system.entity.SystemConfig;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
-
+import com.luoyang.tourism.module.auth.pojo.entity.AdminPermission;
+import com.luoyang.tourism.module.auth.pojo.entity.AdminRole;
+import com.luoyang.tourism.module.auth.pojo.entity.AdminUser;
+import com.luoyang.tourism.module.auth.pojo.entity.AppUser;
+import com.luoyang.tourism.module.system.pojo.entity.AdminOperationLog;
+import com.luoyang.tourism.module.system.pojo.entity.SystemConfig;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+/**
+ * SystemMapper MyBatis 数据访问接口。
+ * <p>SQL 只在本层维护，业务层不得拼接用户可控 SQL。</p>
+ */
 @Mapper
 public interface SystemMapper {
     List<AppUser> selectAppUsers(@Param("keyword") String keyword, @Param("status") Integer status,

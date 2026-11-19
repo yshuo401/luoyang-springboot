@@ -5,15 +5,18 @@ import com.luoyang.tourism.common.api.ApiResponse;
 import com.luoyang.tourism.common.api.ResultCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
+/**
+ * RestAccessDeniedHandler 安全组件。
+ * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class RestAccessDeniedHandler implements AccessDeniedHandler {

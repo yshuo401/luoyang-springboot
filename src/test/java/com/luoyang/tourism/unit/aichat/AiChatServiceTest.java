@@ -7,23 +7,21 @@ import com.luoyang.tourism.common.enums.AiMessageStatus;
 import com.luoyang.tourism.common.exception.BizException;
 import com.luoyang.tourism.integration.ai.AiClient;
 import com.luoyang.tourism.integration.ai.AiDtos;
-import com.luoyang.tourism.module.aichat.dto.AiChatDtos;
-import com.luoyang.tourism.module.aichat.entity.AiConversation;
-import com.luoyang.tourism.module.aichat.entity.AiMessage;
 import com.luoyang.tourism.module.aichat.mapper.AiChatMapper;
+import com.luoyang.tourism.module.aichat.pojo.dto.AiChatDtos;
+import com.luoyang.tourism.module.aichat.pojo.entity.AiConversation;
+import com.luoyang.tourism.module.aichat.pojo.entity.AiMessage;
 import com.luoyang.tourism.module.aichat.service.AiChatPersistenceService;
-import com.luoyang.tourism.module.aichat.service.AiChatService;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-
+import com.luoyang.tourism.module.aichat.service.impl.AiChatServiceImpl;
 import java.time.Duration;
 import java.util.List;
-
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.Test;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.Mock;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowableOfType;
 import static org.mockito.ArgumentMatchers.any;
@@ -46,13 +44,13 @@ class AiChatServiceTest {
     @Mock
     private ValueOperations<String, String> valueOperations;
 
-    private AiChatService service;
+    private AiChatServiceImpl service;
 
     @BeforeEach
     void setUp() {
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.setIfAbsent(anyString(), anyString(), any(Duration.class))).thenReturn(true);
-        service = new AiChatService(mapper, persistence, aiClient, redisTemplate, new ObjectMapper());
+        service = new AiChatServiceImpl(mapper, persistence, aiClient, redisTemplate, new ObjectMapper());
     }
 
     @Test

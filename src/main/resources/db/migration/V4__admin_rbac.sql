@@ -1,3 +1,7 @@
+-- 管理域：管理员、角色、权限和审计日志。
+-- 说明：本脚本不声明物理外键，关联完整性由 Service 层维护。
+
+-- 管理员账号表。
 CREATE TABLE admin_user (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     username VARCHAR(64) NOT NULL,
@@ -27,6 +31,7 @@ CREATE TABLE admin_user (
     KEY idx_admin_user_avatar_file (avatar_file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 管理员角色表。
 CREATE TABLE admin_role (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(64) NOT NULL,
@@ -45,6 +50,7 @@ CREATE TABLE admin_role (
     KEY idx_admin_role_status (status, is_deleted, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 权限、菜单和按钮表。
 CREATE TABLE admin_permission (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     parent_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -70,6 +76,7 @@ CREATE TABLE admin_permission (
     KEY idx_admin_permission_type (permission_type, status, is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 管理员角色关系表。
 CREATE TABLE admin_user_role (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
@@ -81,6 +88,7 @@ CREATE TABLE admin_user_role (
     KEY idx_admin_user_role_role (role_id, user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 角色权限关系表。
 CREATE TABLE admin_role_permission (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     role_id BIGINT UNSIGNED NOT NULL,
@@ -92,6 +100,7 @@ CREATE TABLE admin_role_permission (
     KEY idx_admin_role_permission_permission (permission_id, role_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 管理员操作审计日志表。
 CREATE TABLE admin_operation_log (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     admin_user_id BIGINT UNSIGNED NOT NULL,

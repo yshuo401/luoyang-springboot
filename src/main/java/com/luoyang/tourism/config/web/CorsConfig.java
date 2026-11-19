@@ -1,14 +1,17 @@
 package com.luoyang.tourism.config.web;
 
 import com.luoyang.tourism.config.AppProperties;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
-
+/**
+ * CorsConfig 配置组件。
+ * <p>负责基础设施、安全或 Web 相关配置。</p>
+ */
 @Configuration
 public class CorsConfig {
 

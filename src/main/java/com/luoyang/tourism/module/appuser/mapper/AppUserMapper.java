@@ -1,14 +1,17 @@
 package com.luoyang.tourism.module.appuser.mapper;
 
-import com.luoyang.tourism.module.appuser.entity.UserBehavior;
-import com.luoyang.tourism.module.appuser.entity.UserFavorite;
-import com.luoyang.tourism.module.appuser.entity.UserPreference;
-import com.luoyang.tourism.module.appuser.entity.UserRecommendationLog;
+import com.luoyang.tourism.module.appuser.pojo.entity.UserBehavior;
+import com.luoyang.tourism.module.appuser.pojo.entity.UserFavorite;
+import com.luoyang.tourism.module.appuser.pojo.entity.UserPreference;
+import com.luoyang.tourism.module.appuser.pojo.entity.UserRecommendationLog;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
+/**
+ * AppUserMapper MyBatis 数据访问接口。
+ * <p>SQL 只在本层维护，业务层不得拼接用户可控 SQL。</p>
+ */
 @Mapper
 public interface AppUserMapper {
     List<UserPreference> selectPreferences(@Param("userId") Long userId, @Param("source") Integer source);

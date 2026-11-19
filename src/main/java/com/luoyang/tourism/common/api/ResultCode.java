@@ -2,6 +2,10 @@ package com.luoyang.tourism.common.api;
 
 import org.springframework.http.HttpStatus;
 
+/**
+ * ResultCode 通用组件。
+ * <p>为各业务模块提供统一的基础能力。</p>
+ */
 public enum ResultCode {
     SUCCESS(0, HttpStatus.OK, "success"),
     BAD_REQUEST(40000, HttpStatus.BAD_REQUEST, "参数校验失败"),

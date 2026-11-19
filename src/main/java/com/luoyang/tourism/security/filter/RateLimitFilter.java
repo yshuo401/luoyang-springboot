@@ -5,12 +5,16 @@ import com.luoyang.tourism.common.api.ApiResponse;
 import com.luoyang.tourism.common.api.ResultCode;
 import com.luoyang.tourism.common.util.RequestUtils;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
@@ -19,11 +23,10 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-
+/**
+ * RateLimitFilter 安全组件。
+ * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ */
 @Component
 @Order(Ordered.LOWEST_PRECEDENCE - 50)
 @RequiredArgsConstructor

@@ -1,16 +1,17 @@
 package com.luoyang.tourism.support;
 
-import com.luoyang.tourism.security.jwt.TokenAudience;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.HexFormat;
 import java.util.stream.Collectors;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import org.springframework.stereotype.Component;
 
+/**
+ * InternalHmacSigner 后端组件。
+ */
 @Component
 public class InternalHmacSigner {
     public String canonical(String timestamp, String method, String pathWithSortedQuery,

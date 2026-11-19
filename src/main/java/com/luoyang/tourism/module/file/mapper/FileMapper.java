@@ -1,11 +1,14 @@
 package com.luoyang.tourism.module.file.mapper;
 
-import com.luoyang.tourism.module.file.entity.FileObject;
+import com.luoyang.tourism.module.file.pojo.entity.FileObject;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.List;
-
+/**
+ * FileMapper MyBatis 数据访问接口。
+ * <p>SQL 只在本层维护，业务层不得拼接用户可控 SQL。</p>
+ */
 @Mapper
 public interface FileMapper {
     FileObject selectById(@Param("id") Long id);

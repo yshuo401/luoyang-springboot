@@ -3,6 +3,10 @@ package com.luoyang.tourism.common.api;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 
+/**
+ * ApiResponse 通用组件。
+ * <p>为各业务模块提供统一的基础能力。</p>
+ */
 public record ApiResponse<T>(
         int code,
         String message,

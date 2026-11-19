@@ -1,14 +1,17 @@
 package com.luoyang.tourism.module.aichat.mapper;
 
-import com.luoyang.tourism.module.aichat.entity.AiConversation;
-import com.luoyang.tourism.module.aichat.entity.AiMessage;
-import com.luoyang.tourism.module.aichat.entity.AiMessageSource;
+import com.luoyang.tourism.module.aichat.pojo.entity.AiConversation;
+import com.luoyang.tourism.module.aichat.pojo.entity.AiMessage;
+import com.luoyang.tourism.module.aichat.pojo.entity.AiMessageSource;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+/**
+ * AiChatMapper MyBatis 数据访问接口。
+ * <p>SQL 只在本层维护，业务层不得拼接用户可控 SQL。</p>
+ */
 @Mapper
 public interface AiChatMapper {
     int insertConversation(AiConversation conversation);

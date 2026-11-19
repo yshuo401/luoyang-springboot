@@ -2,7 +2,6 @@ package com.luoyang.tourism.unit.common;
 
 import com.luoyang.tourism.common.util.HtmlSanitizer;
 import org.junit.jupiter.api.Test;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class HtmlSanitizerTest {

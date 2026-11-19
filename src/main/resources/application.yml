@@ -17,6 +17,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    baseline-version: ${FLYWAY_BASELINE_VERSION:1}
     locations: classpath:db/migration
     encoding: UTF-8
     validate-on-migrate: true

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- 用户、收藏、行为与推荐日志数据访问。禁止在 XML 中拼接用户可控 SQL。 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.luoyang.tourism.module.appuser.mapper.AppUserMapper">
-    <select id="selectPreferences" resultType="com.luoyang.tourism.module.appuser.entity.UserPreference">
+    <select id="selectPreferences" resultType="com.luoyang.tourism.module.appuser.pojo.entity.UserPreference">
         SELECT * FROM user_preference WHERE user_id=#{userId} AND is_deleted=0
         <if test="source != null"> AND source=#{source} </if>
         ORDER BY preference_type, id
@@ -15,7 +16,7 @@
         VALUES (#{userId}, #{preferenceType}, #{preferenceKey}, #{weight}, #{source}, #{lastInteractedAt})
     </insert>
 
-    <select id="selectFavorites" resultType="com.luoyang.tourism.module.appuser.entity.UserFavorite">
+    <select id="selectFavorites" resultType="com.luoyang.tourism.module.appuser.pojo.entity.UserFavorite">
         SELECT * FROM user_favorite WHERE user_id=#{userId}
         <if test="bizType != null"> AND biz_type=#{bizType} </if>
         ORDER BY created_at DESC, id DESC LIMIT #{offset}, #{limit}
@@ -24,7 +25,7 @@
         SELECT COUNT(*) FROM user_favorite WHERE user_id=#{userId}
         <if test="bizType != null"> AND biz_type=#{bizType} </if>
     </select>
-    <select id="selectFavorite" resultType="com.luoyang.tourism.module.appuser.entity.UserFavorite">
+    <select id="selectFavorite" resultType="com.luoyang.tourism.module.appuser.pojo.entity.UserFavorite">
         SELECT * FROM user_favorite
         WHERE user_id=#{userId} AND biz_type=#{bizType} AND biz_id=#{bizId}
     </select>

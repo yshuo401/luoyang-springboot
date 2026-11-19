@@ -2,15 +2,16 @@ package com.luoyang.tourism.module.knowledge.controller;
 
 import com.luoyang.tourism.common.api.ApiResponse;
 import com.luoyang.tourism.common.api.PageResult;
-import com.luoyang.tourism.module.content.dto.ContentDtos;
-import com.luoyang.tourism.module.knowledge.dto.KnowledgeDtos;
+import com.luoyang.tourism.module.content.pojo.dto.ContentDtos;
+import com.luoyang.tourism.module.knowledge.pojo.dto.KnowledgeDtos;
+import com.luoyang.tourism.module.knowledge.pojo.vo.KnowledgeVos;
 import com.luoyang.tourism.module.knowledge.service.KnowledgeService;
-import com.luoyang.tourism.module.knowledge.vo.KnowledgeVos;
 import com.luoyang.tourism.security.principal.AuthClaims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,8 +29,10 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-
+/**
+ * AdminKnowledgeController 控制器。
+ * <p>负责接收 HTTP 请求、校验参数，并委托对应的业务接口处理。</p>
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/admin/knowledge")

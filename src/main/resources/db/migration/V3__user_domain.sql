@@ -1,3 +1,7 @@
+-- 用户域：用户、偏好、行为、收藏和推荐日志。
+-- 说明：本脚本不声明物理外键，关联完整性由 Service 层维护。
+
+-- 小程序用户表。
 CREATE TABLE app_user (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     openid VARCHAR(64) NOT NULL,
@@ -22,6 +26,7 @@ CREATE TABLE app_user (
     KEY idx_app_user_avatar_file (avatar_file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 用户显式/推导偏好表。
 CREATE TABLE user_preference (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
@@ -39,6 +44,7 @@ CREATE TABLE user_preference (
     KEY idx_user_preference_user (user_id, is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 用户行为埋点表。
 CREATE TABLE user_behavior (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
@@ -58,6 +64,7 @@ CREATE TABLE user_behavior (
     KEY idx_user_behavior_trace (trace_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 用户收藏关系表。
 CREATE TABLE user_favorite (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,
@@ -70,6 +77,7 @@ CREATE TABLE user_favorite (
     KEY idx_user_favorite_biz (biz_type, biz_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 个性化推荐结果日志表。
 CREATE TABLE user_recommendation_log (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     user_id BIGINT UNSIGNED NOT NULL,

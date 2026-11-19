@@ -5,6 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+/**
+ * KnowledgeIndexScheduler 定时任务。
+ * <p>负责异步状态轮询和补偿处理。</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class KnowledgeIndexScheduler {

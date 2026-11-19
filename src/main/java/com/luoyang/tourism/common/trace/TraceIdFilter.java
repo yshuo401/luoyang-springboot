@@ -2,18 +2,21 @@ package com.luoyang.tourism.common.trace;
 
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import java.io.IOException;
+import java.util.regex.Pattern;
 import org.slf4j.MDC;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import java.io.IOException;
-import java.util.regex.Pattern;
-
+/**
+ * TraceIdFilter 通用组件。
+ * <p>为各业务模块提供统一的基础能力。</p>
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class TraceIdFilter extends OncePerRequestFilter {

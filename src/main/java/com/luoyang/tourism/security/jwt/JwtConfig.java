@@ -1,12 +1,16 @@
 package com.luoyang.tourism.security.jwt;
 
 import com.luoyang.tourism.config.AppProperties;
-import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.OctetSequenceKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.proc.SecurityContext;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +26,10 @@ import org.springframework.security.oauth2.jwt.JwtValidators;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-
+/**
+ * JwtConfig 安全组件。
+ * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ */
 @Configuration
 public class JwtConfig {
 
@@ -85,6 +88,7 @@ public class JwtConfig {
     private JwtDecoder decoder(AppProperties properties, String secret, TokenAudience audience, TokenType type) {
         SecretKey key = key(secret, audience == TokenAudience.APP_USER ? "JWT_APP_SECRET" : "JWT_ADMIN_SECRET");
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
+        // audience 与 token_type 双重校验，禁止 App/Admin 和 Access/Refresh 互相串用。
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>("aud",
                 values -> values != null && values.contains(audience.value()));
         OAuth2TokenValidator<Jwt> typeValidator = new JwtClaimValidator<String>("token_type",

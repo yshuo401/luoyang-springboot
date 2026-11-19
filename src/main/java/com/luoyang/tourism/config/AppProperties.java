@@ -1,12 +1,15 @@
 package com.luoyang.tourism.config;
 
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 
+/**
+ * AppProperties 配置组件。
+ * <p>负责基础设施、安全或 Web 相关配置。</p>
+ */
 @Data
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {

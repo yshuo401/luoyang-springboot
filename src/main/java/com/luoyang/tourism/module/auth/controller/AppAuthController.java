@@ -2,9 +2,9 @@ package com.luoyang.tourism.module.auth.controller;
 
 import com.luoyang.tourism.common.api.ApiResponse;
 import com.luoyang.tourism.common.util.RequestUtils;
-import com.luoyang.tourism.module.auth.dto.AuthDtos;
+import com.luoyang.tourism.module.auth.pojo.dto.AuthDtos;
+import com.luoyang.tourism.module.auth.pojo.vo.AuthVos;
 import com.luoyang.tourism.module.auth.service.AuthService;
-import com.luoyang.tourism.module.auth.vo.AuthVos;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +18,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * AppAuthController 控制器。
+ * <p>负责接收 HTTP 请求、校验参数，并委托对应的业务接口处理。</p>
+ */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/app/auth")

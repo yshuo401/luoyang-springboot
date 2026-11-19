@@ -1,52 +1,21 @@
 package com.luoyang.tourism.module.file.service;
 
-import com.luoyang.tourism.common.api.ResultCode;
-import com.luoyang.tourism.common.exception.BizException;
-import com.luoyang.tourism.config.AppProperties;
-import com.luoyang.tourism.integration.oss.OssStorageService;
-import com.luoyang.tourism.module.file.entity.FileObject;
-import com.luoyang.tourism.module.file.mapper.FileMapper;
-import org.springframework.stereotype.Service;
+import com.luoyang.tourism.module.file.pojo.entity.FileObject;
 
-@Service
-public class FileUrlService {
-    private final FileMapper fileMapper;
-    private final OssStorageService storageService;
-    private final AppProperties properties;
+/**
+ * FileUrlService 业务接口。
+ * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
+ */
+public interface FileUrlService {
+    /** 执行 signedUrl 业务操作。 */
+    public String signedUrl(Long fileId);
 
-    public FileUrlService(FileMapper fileMapper, OssStorageService storageService, AppProperties properties) {
-        this.fileMapper = fileMapper;
-        this.storageService = storageService;
-        this.properties = properties;
-    }
+    /** 执行 signedUrl 业务操作。 */
+    public String signedUrl(FileObject file);
 
-    public String signedUrl(Long fileId) {
-        if (fileId == null) {
-            return null;
-        }
-        FileObject file = fileMapper.selectById(fileId);
-        if (file == null || file.getStatus() == null || file.getStatus() != 1) {
-            return null;
-        }
-        return signedUrl(file);
-    }
+    /** 执行 signedUrl 业务操作。 */
+    public String signedUrl(String objectKey, long expiresSeconds);
 
-    public String signedUrl(FileObject file) {
-        if (file == null || !storageService.isAvailable()) {
-            return null;
-        }
-        return storageService.signedUrl(file.getObjectKey(), properties.getOss().getSignedUrlExpirySeconds());
-    }
-
-    public String signedUrl(String objectKey, long expiresSeconds) {
-        return storageService.signedUrl(objectKey, expiresSeconds);
-    }
-
-    public FileObject requireUsable(Long fileId) {
-        FileObject file = fileMapper.selectById(fileId);
-        if (file == null || file.getStatus() == null || file.getStatus() != 1) {
-            throw new BizException(ResultCode.BAD_REQUEST, "文件不存在或尚未上传完成");
-        }
-        return file;
-    }
+    /** 执行 requireUsable 业务操作。 */
+    public FileObject requireUsable(Long fileId);
 }

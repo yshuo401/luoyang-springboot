@@ -1,3 +1,7 @@
+-- 系统域：OSS 文件对象和非敏感配置。
+-- 说明：本脚本不声明物理外键，关联完整性由 Service 层维护。
+
+-- 阿里云 OSS 文件对象元数据表。
 CREATE TABLE file_object (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     biz_scene VARCHAR(32) NOT NULL,
@@ -25,6 +29,7 @@ CREATE TABLE file_object (
     KEY idx_file_object_uploader (uploaded_by_type, uploaded_by)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 非敏感系统配置表。
 CREATE TABLE system_config (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     config_key VARCHAR(128) NOT NULL,

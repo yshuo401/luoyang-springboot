@@ -1,15 +1,19 @@
 package com.luoyang.tourism.config.knife4j;
 
 import io.swagger.v3.oas.models.Components;
-import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
+/**
+ * OpenApiConfig 配置组件。
+ * <p>负责基础设施、安全或 Web 相关配置。</p>
+ */
 @Configuration
 public class OpenApiConfig {
 

@@ -1,14 +1,17 @@
 package com.luoyang.tourism.module.knowledge.mapper;
 
-import com.luoyang.tourism.module.knowledge.entity.AiIndexJob;
-import com.luoyang.tourism.module.knowledge.entity.KnowledgeChunk;
-import com.luoyang.tourism.module.knowledge.entity.KnowledgeDocument;
+import com.luoyang.tourism.module.knowledge.pojo.entity.AiIndexJob;
+import com.luoyang.tourism.module.knowledge.pojo.entity.KnowledgeChunk;
+import com.luoyang.tourism.module.knowledge.pojo.entity.KnowledgeDocument;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
+/**
+ * KnowledgeMapper MyBatis 数据访问接口。
+ * <p>SQL 只在本层维护，业务层不得拼接用户可控 SQL。</p>
+ */
 @Mapper
 public interface KnowledgeMapper {
     int insertDocument(KnowledgeDocument document);

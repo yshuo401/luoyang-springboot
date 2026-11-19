@@ -3,12 +3,15 @@ package com.luoyang.tourism.integration.wechat;
 import com.luoyang.tourism.common.api.ResultCode;
 import com.luoyang.tourism.common.exception.BizException;
 import com.luoyang.tourism.config.AppProperties;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
-import java.util.Map;
-
+/**
+ * WechatClient 外部服务集成组件。
+ * <p>集中封装第三方 HTTP、对象存储或模型服务调用。</p>
+ */
 @Component
 @RequiredArgsConstructor
 public class WechatClient {

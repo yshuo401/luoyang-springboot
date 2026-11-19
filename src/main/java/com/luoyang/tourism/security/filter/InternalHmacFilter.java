@@ -7,22 +7,25 @@ import com.luoyang.tourism.config.AppProperties;
 import com.luoyang.tourism.support.CachedBodyHttpServletRequest;
 import com.luoyang.tourism.support.InternalHmacSigner;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
+import jakarta.servlet.ServletException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
 import java.util.HexFormat;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.annotation.Order;
+import org.springframework.core.Ordered;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * InternalHmacFilter 安全组件。
+ * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ */
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE + 10)
 @RequiredArgsConstructor
@@ -52,6 +55,7 @@ public class InternalHmacFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 限制时间窗，降低内部请求被截获后无限重放的风险。
         try {
             long epochSeconds = Long.parseLong(timestamp);
             if (Math.abs(Instant.now().getEpochSecond() - epochSeconds)
@@ -64,6 +68,7 @@ public class InternalHmacFilter extends OncePerRequestFilter {
             return;
         }
 
+        // 缓存原始请求体，保证验签使用的字节与后续业务反序列化完全一致。
         CachedBodyHttpServletRequest wrapped = new CachedBodyHttpServletRequest(request);
         String rawBody = new String(wrapped.body(), StandardCharsets.UTF_8);
         String path = signer.pathWithSortedQuery(wrapped.getRequestURI(), wrapped.getQueryString());

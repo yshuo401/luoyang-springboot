@@ -3,6 +3,10 @@ package com.luoyang.tourism.common.enums;
 import com.luoyang.tourism.common.api.ResultCode;
 import com.luoyang.tourism.common.exception.BizException;
 
+/**
+ * BizType 通用组件。
+ * <p>为各业务模块提供统一的基础能力。</p>
+ */
 public enum BizType {
     SPOT(1, "SPOT", "scenic_spot", "景点"),
     GUIDE(2, "GUIDE", "travel_guide", "攻略"),

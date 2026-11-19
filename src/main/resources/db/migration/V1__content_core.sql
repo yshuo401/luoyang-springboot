@@ -1,3 +1,7 @@
+-- 内容域基础表：景点、分类、标签及关系。
+-- 说明：本脚本不声明物理外键，关联完整性由 Service 层维护。
+
+-- 景点分类表：支持父子分类和启停状态。
 CREATE TABLE scenic_category (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     parent_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
@@ -19,6 +23,7 @@ CREATE TABLE scenic_category (
     KEY idx_scenic_category_icon_file (icon_file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 景点主表：保存景点详情、热度与发布状态。
 CREATE TABLE scenic_spot (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     category_id BIGINT UNSIGNED NOT NULL,
@@ -55,6 +60,7 @@ CREATE TABLE scenic_spot (
     KEY idx_scenic_spot_updated (updated_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 景点图片表：保存景点图集及排序。
 CREATE TABLE scenic_image (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     spot_id BIGINT UNSIGNED NOT NULL,
@@ -70,6 +76,7 @@ CREATE TABLE scenic_image (
     KEY idx_scenic_image_file (file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 标签字典表：支持景点、攻略、美食标签。
 CREATE TABLE tag (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     tag_type TINYINT UNSIGNED NOT NULL DEFAULT 1,
@@ -90,6 +97,7 @@ CREATE TABLE tag (
     KEY idx_tag_type_status (tag_type, status, is_deleted, sort_order)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 景点标签关系表：逻辑关联景点与标签。
 CREATE TABLE scenic_spot_tag (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     spot_id BIGINT UNSIGNED NOT NULL,

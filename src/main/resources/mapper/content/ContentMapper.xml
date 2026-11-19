@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- 景点、攻略、美食、分类与轮播图数据访问。禁止在 XML 中拼接用户可控 SQL。 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.luoyang.tourism.module.content.mapper.ContentMapper">
 
-    <select id="selectCategories" resultType="com.luoyang.tourism.module.content.entity.ScenicCategory">
+    <select id="selectCategories" resultType="com.luoyang.tourism.module.content.pojo.entity.ScenicCategory">
         SELECT * FROM scenic_category
         WHERE is_deleted = 0
         <if test="!admin"> AND status = 1 </if>
@@ -13,7 +14,7 @@
         ORDER BY sort_order ASC, id ASC
     </select>
 
-    <select id="selectCategory" resultType="com.luoyang.tourism.module.content.entity.ScenicCategory">
+    <select id="selectCategory" resultType="com.luoyang.tourism.module.content.pojo.entity.ScenicCategory">
         SELECT * FROM scenic_category WHERE id = #{id} AND is_deleted = 0
     </select>
 
@@ -52,7 +53,7 @@
         <if test="excludeId != null"> AND id != #{excludeId} </if>
     </select>
 
-    <select id="selectTags" resultType="com.luoyang.tourism.module.content.entity.Tag">
+    <select id="selectTags" resultType="com.luoyang.tourism.module.content.pojo.entity.Tag">
         SELECT * FROM tag
         WHERE is_deleted=0
         <if test="!admin"> AND status=1 </if>
@@ -75,11 +76,11 @@
         </if>
     </select>
 
-    <select id="selectTag" resultType="com.luoyang.tourism.module.content.entity.Tag">
+    <select id="selectTag" resultType="com.luoyang.tourism.module.content.pojo.entity.Tag">
         SELECT * FROM tag WHERE id=#{id} AND is_deleted=0
     </select>
 
-    <select id="selectTagsByIds" resultType="com.luoyang.tourism.module.content.entity.Tag">
+    <select id="selectTagsByIds" resultType="com.luoyang.tourism.module.content.pojo.entity.Tag">
         SELECT * FROM tag WHERE is_deleted=0 AND status=1
         <choose>
             <when test="ids != null and ids.size() > 0">
@@ -89,7 +90,7 @@
         </choose>
     </select>
 
-    <select id="selectTagsBySpotId" resultType="com.luoyang.tourism.module.content.entity.Tag">
+    <select id="selectTagsBySpotId" resultType="com.luoyang.tourism.module.content.pojo.entity.Tag">
         SELECT t.* FROM tag t JOIN scenic_spot_tag st ON st.tag_id=t.id
         WHERE st.spot_id=#{spotId} AND t.is_deleted=0 AND t.status=1
         ORDER BY t.sort_order, t.id
@@ -140,7 +141,7 @@
         </where>
     </sql>
 
-    <select id="selectSpots" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+    <select id="selectSpots" resultType="com.luoyang.tourism.module.content.pojo.entity.ScenicSpot">
         SELECT s.*, c.name AS category_name
         FROM scenic_spot s JOIN scenic_category c ON c.id=s.category_id
         <include refid="spotWhere"/>
@@ -159,13 +160,13 @@
         <include refid="spotWhere"/>
     </select>
 
-    <select id="selectSpot" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+    <select id="selectSpot" resultType="com.luoyang.tourism.module.content.pojo.entity.ScenicSpot">
         SELECT s.*, c.name AS category_name FROM scenic_spot s
         JOIN scenic_category c ON c.id=s.category_id
         WHERE s.id=#{id} AND s.is_deleted=0
     </select>
 
-    <select id="selectRelatedSpots" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+    <select id="selectRelatedSpots" resultType="com.luoyang.tourism.module.content.pojo.entity.ScenicSpot">
         SELECT s.*, c.name AS category_name FROM scenic_spot s
         JOIN scenic_category c ON c.id=s.category_id
         WHERE s.id != #{id} AND s.status=1 AND s.is_deleted=0 AND c.is_deleted=0
@@ -178,7 +179,7 @@
         LIMIT #{limit}
     </select>
 
-    <select id="selectPublishedCandidates" resultType="com.luoyang.tourism.module.content.entity.ScenicSpot">
+    <select id="selectPublishedCandidates" resultType="com.luoyang.tourism.module.content.pojo.entity.ScenicSpot">
         SELECT s.*, c.name AS category_name FROM scenic_spot s
         JOIN scenic_category c ON c.id=s.category_id
         WHERE s.status=1 AND s.is_deleted=0 AND c.is_deleted=0
@@ -224,7 +225,7 @@
         WHERE id=#{id} AND version=#{version} AND is_deleted=0
     </update>
 
-    <select id="selectSpotImages" resultType="com.luoyang.tourism.module.content.entity.ScenicImage">
+    <select id="selectSpotImages" resultType="com.luoyang.tourism.module.content.pojo.entity.ScenicImage">
         SELECT * FROM scenic_image WHERE spot_id=#{spotId} AND is_deleted=0 ORDER BY sort_order, id
     </select>
     <update id="deleteSpotImages">
@@ -250,7 +251,7 @@
         </where>
     </sql>
 
-    <select id="selectGuides" resultType="com.luoyang.tourism.module.content.entity.TravelGuide">
+    <select id="selectGuides" resultType="com.luoyang.tourism.module.content.pojo.entity.TravelGuide">
         SELECT * FROM travel_guide
         <include refid="guideWhere"/>
         <choose>
@@ -267,15 +268,15 @@
         SELECT COUNT(*) FROM travel_guide <include refid="guideWhere"/>
     </select>
 
-    <select id="selectGuide" resultType="com.luoyang.tourism.module.content.entity.TravelGuide">
+    <select id="selectGuide" resultType="com.luoyang.tourism.module.content.pojo.entity.TravelGuide">
         SELECT * FROM travel_guide WHERE id=#{id} AND is_deleted=0
     </select>
 
-    <select id="selectGuideDays" resultType="com.luoyang.tourism.module.content.entity.GuideDay">
+    <select id="selectGuideDays" resultType="com.luoyang.tourism.module.content.pojo.entity.GuideDay">
         SELECT * FROM guide_day WHERE guide_id=#{guideId} AND is_deleted=0 ORDER BY day_no
     </select>
 
-    <select id="selectGuideDaySpots" resultType="com.luoyang.tourism.module.content.entity.GuideDaySpot">
+    <select id="selectGuideDaySpots" resultType="com.luoyang.tourism.module.content.pojo.entity.GuideDaySpot">
         SELECT * FROM guide_day_spot WHERE guide_id=#{guideId} AND is_deleted=0
         ORDER BY guide_day_id, sort_order, id
     </select>
@@ -319,13 +320,13 @@
         VALUES (#{guideDayId}, #{guideId}, #{spotId}, #{sortOrder}, #{stayMinutes}, #{note})
     </insert>
 
-    <select id="selectFoodCategories" resultType="com.luoyang.tourism.module.content.entity.FoodCategory">
+    <select id="selectFoodCategories" resultType="com.luoyang.tourism.module.content.pojo.entity.FoodCategory">
         SELECT * FROM food_category WHERE is_deleted=0
         <if test="!admin"> AND status=1 </if>
         <if test="status != null"> AND status=#{status} </if>
         ORDER BY sort_order, id
     </select>
-    <select id="selectFoodCategory" resultType="com.luoyang.tourism.module.content.entity.FoodCategory">
+    <select id="selectFoodCategory" resultType="com.luoyang.tourism.module.content.pojo.entity.FoodCategory">
         SELECT * FROM food_category WHERE id=#{id} AND is_deleted=0
     </select>
     <insert id="insertFoodCategory" useGeneratedKeys="true" keyProperty="id">
@@ -368,7 +369,7 @@
         </where>
     </sql>
 
-    <select id="selectFoods" resultType="com.luoyang.tourism.module.content.entity.Food">
+    <select id="selectFoods" resultType="com.luoyang.tourism.module.content.pojo.entity.Food">
         SELECT f.*, fc.name AS category_name FROM food f JOIN food_category fc ON fc.id=f.food_category_id
         <include refid="foodWhere"/>
         <choose>
@@ -384,7 +385,7 @@
         SELECT COUNT(*) FROM food f JOIN food_category fc ON fc.id=f.food_category_id
         <include refid="foodWhere"/>
     </select>
-    <select id="selectFood" resultType="com.luoyang.tourism.module.content.entity.Food">
+    <select id="selectFood" resultType="com.luoyang.tourism.module.content.pojo.entity.Food">
         SELECT f.*, fc.name AS category_name FROM food f JOIN food_category fc ON fc.id=f.food_category_id
         WHERE f.id=#{id} AND f.is_deleted=0
     </select>
@@ -412,7 +413,7 @@
         UPDATE food SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
         WHERE id=#{id} AND version=#{version} AND is_deleted=0
     </update>
-    <select id="selectFoodImages" resultType="com.luoyang.tourism.module.content.entity.FoodImage">
+    <select id="selectFoodImages" resultType="com.luoyang.tourism.module.content.pojo.entity.FoodImage">
         SELECT * FROM food_image WHERE food_id=#{foodId} AND is_deleted=0 ORDER BY sort_order, id
     </select>
     <update id="deleteFoodImages">
@@ -423,7 +424,7 @@
         VALUES (#{foodId}, #{fileId}, #{caption}, #{sortOrder}, #{isCover}, #{createdBy})
     </insert>
 
-    <select id="selectPublicBanners" resultType="com.luoyang.tourism.module.content.entity.Banner">
+    <select id="selectPublicBanners" resultType="com.luoyang.tourism.module.content.pojo.entity.Banner">
         SELECT * FROM banner
         WHERE is_deleted=0 AND status=1
         <if test="position != null and position != ''"> AND position=#{position} </if>
@@ -431,7 +432,7 @@
           AND (end_at IS NULL OR end_at &gt;= #{now})
         ORDER BY sort_order, id
     </select>
-    <select id="selectBanners" resultType="com.luoyang.tourism.module.content.entity.Banner">
+    <select id="selectBanners" resultType="com.luoyang.tourism.module.content.pojo.entity.Banner">
         SELECT * FROM banner WHERE is_deleted=0
         <if test="position != null and position != ''"> AND position=#{position} </if>
         <if test="status != null"> AND status=#{status} </if>
@@ -442,7 +443,7 @@
         <if test="position != null and position != ''"> AND position=#{position} </if>
         <if test="status != null"> AND status=#{status} </if>
     </select>
-    <select id="selectBanner" resultType="com.luoyang.tourism.module.content.entity.Banner">
+    <select id="selectBanner" resultType="com.luoyang.tourism.module.content.pojo.entity.Banner">
         SELECT * FROM banner WHERE id=#{id} AND is_deleted=0
     </select>
     <insert id="insertBanner" useGeneratedKeys="true" keyProperty="id">

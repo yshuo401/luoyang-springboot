@@ -1,3 +1,7 @@
+-- AI 与知识库域：会话、消息、文档、分片和索引任务。
+-- 说明：本脚本不声明物理外键，关联完整性由 Service 层维护。
+
+-- AI 会话表，thread_id 与 LangGraph checkpointer 对齐。
 CREATE TABLE ai_conversation (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     thread_id CHAR(26) CHARACTER SET ascii COLLATE ascii_bin NOT NULL,
@@ -16,6 +20,7 @@ CREATE TABLE ai_conversation (
     KEY idx_ai_conversation_status (status, is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- AI 消息表，是用户可见消息的事实源。
 CREATE TABLE ai_message (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     conversation_id BIGINT UNSIGNED NOT NULL,
@@ -40,6 +45,7 @@ CREATE TABLE ai_message (
     KEY idx_ai_message_status (status, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- AI 回答来源追溯表。
 CREATE TABLE ai_message_source (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     message_id BIGINT UNSIGNED NOT NULL,
@@ -59,6 +65,7 @@ CREATE TABLE ai_message_source (
     KEY idx_ai_message_source_chunk (chunk_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 知识库文档版本表。
 CREATE TABLE knowledge_document (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     title VARCHAR(255) NOT NULL,
@@ -87,6 +94,7 @@ CREATE TABLE knowledge_document (
     KEY idx_knowledge_document_checksum (checksum)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 知识分片元数据表。
 CREATE TABLE knowledge_chunk (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     document_id BIGINT UNSIGNED NOT NULL,
@@ -105,6 +113,7 @@ CREATE TABLE knowledge_chunk (
     KEY idx_knowledge_chunk_document_enabled (document_id, enabled)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 知识索引任务表。
 CREATE TABLE ai_index_job (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     document_id BIGINT UNSIGNED NOT NULL,

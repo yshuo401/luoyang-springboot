@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" ?>
+<!-- AI 会话、消息和来源数据访问。禁止在 XML 中拼接用户可控 SQL。 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.luoyang.tourism.module.aichat.mapper.AiChatMapper">
     <insert id="insertConversation" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO ai_conversation (thread_id, user_id, title, status)
         VALUES (#{threadId}, #{userId}, #{title}, 1)
     </insert>
-    <select id="selectConversationByThreadId" resultType="com.luoyang.tourism.module.aichat.entity.AiConversation">
+    <select id="selectConversationByThreadId" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiConversation">
         SELECT * FROM ai_conversation WHERE thread_id=#{threadId} AND is_deleted=0
     </select>
-    <select id="selectConversationById" resultType="com.luoyang.tourism.module.aichat.entity.AiConversation">
+    <select id="selectConversationById" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiConversation">
         SELECT * FROM ai_conversation WHERE id=#{id} AND is_deleted=0
     </select>
-    <select id="selectConversations" resultType="com.luoyang.tourism.module.aichat.entity.AiConversation">
+    <select id="selectConversations" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiConversation">
         SELECT c.*,
           (SELECT LEFT(m.content, 80) FROM ai_message m
            WHERE m.conversation_id=c.id AND m.is_deleted=0
@@ -44,23 +45,23 @@
         VALUES (#{conversationId}, #{userId}, #{sequenceNo}, #{role}, #{content}, #{status},
                 #{clientMessageId}, #{traceId}, #{modelName}, #{tokenUsage}, #{latencyMs}, #{grounded})
     </insert>
-    <select id="selectMessageById" resultType="com.luoyang.tourism.module.aichat.entity.AiMessage">
+    <select id="selectMessageById" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiMessage">
         SELECT * FROM ai_message WHERE id=#{id} AND is_deleted=0
     </select>
-    <select id="selectUserMessageByClientId" resultType="com.luoyang.tourism.module.aichat.entity.AiMessage">
+    <select id="selectUserMessageByClientId" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiMessage">
         SELECT * FROM ai_message WHERE conversation_id=#{conversationId}
           AND client_message_id=#{clientMessageId} AND role='user' AND is_deleted=0 LIMIT 1
     </select>
-    <select id="selectAssistantBySequence" resultType="com.luoyang.tourism.module.aichat.entity.AiMessage">
+    <select id="selectAssistantBySequence" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiMessage">
         SELECT * FROM ai_message WHERE conversation_id=#{conversationId}
           AND sequence_no=#{sequenceNo} AND role='assistant' AND is_deleted=0 LIMIT 1
     </select>
-    <select id="selectMessages" resultType="com.luoyang.tourism.module.aichat.entity.AiMessage">
+    <select id="selectMessages" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiMessage">
         SELECT * FROM ai_message WHERE conversation_id=#{conversationId} AND is_deleted=0
         <if test="cursor != null"> AND sequence_no &gt; #{cursor} </if>
         ORDER BY sequence_no ASC LIMIT #{limit}
     </select>
-    <select id="selectRecentMessages" resultType="com.luoyang.tourism.module.aichat.entity.AiMessage">
+    <select id="selectRecentMessages" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiMessage">
         SELECT * FROM (
             SELECT * FROM ai_message WHERE conversation_id=#{conversationId} AND is_deleted=0
             ORDER BY sequence_no DESC LIMIT #{limit}
@@ -84,10 +85,10 @@
         VALUES (#{messageId}, #{sourceType}, #{sourceId}, #{chunkId}, #{sourceTitle}, #{sourceUrl},
                 #{snippet}, #{score}, #{rankNo}, #{metadata})
     </insert>
-    <select id="selectSourcesByMessageId" resultType="com.luoyang.tourism.module.aichat.entity.AiMessageSource">
+    <select id="selectSourcesByMessageId" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiMessageSource">
         SELECT * FROM ai_message_source WHERE message_id=#{messageId} ORDER BY rank_no, id
     </select>
-    <select id="selectSourcesByMessageIds" resultType="com.luoyang.tourism.module.aichat.entity.AiMessageSource">
+    <select id="selectSourcesByMessageIds" resultType="com.luoyang.tourism.module.aichat.pojo.entity.AiMessageSource">
         SELECT * FROM ai_message_source WHERE message_id IN
         <foreach collection="messageIds" item="id" open="(" separator="," close=")">#{id}</foreach>
         ORDER BY message_id, rank_no, id

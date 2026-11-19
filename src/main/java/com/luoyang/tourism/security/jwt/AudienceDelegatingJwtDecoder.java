@@ -1,12 +1,15 @@
 package com.luoyang.tourism.security.jwt;
 
 import com.nimbusds.jwt.JWTParser;
+import java.text.ParseException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 
-import java.text.ParseException;
-
+/**
+ * AudienceDelegatingJwtDecoder 安全组件。
+ * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ */
 public class AudienceDelegatingJwtDecoder implements JwtDecoder {
     private final JwtDecoder appDecoder;
     private final JwtDecoder adminDecoder;

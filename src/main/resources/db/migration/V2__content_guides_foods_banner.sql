@@ -1,3 +1,7 @@
+-- 内容域扩展表：攻略、美食、轮播图。
+-- 说明：本脚本不声明物理外键，关联完整性由 Service 层维护。
+
+-- 旅游攻略主表：保存正文、热度和发布状态。
 CREATE TABLE travel_guide (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     title VARCHAR(200) NOT NULL,
@@ -27,6 +31,7 @@ CREATE TABLE travel_guide (
     KEY idx_travel_guide_cover_file (cover_file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 攻略每日行程表。
 CREATE TABLE guide_day (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     guide_id BIGINT UNSIGNED NOT NULL,
@@ -43,6 +48,7 @@ CREATE TABLE guide_day (
     KEY idx_guide_day_guide (guide_id, is_deleted, day_no)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 每日行程景点关系表。
 CREATE TABLE guide_day_spot (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     guide_day_id BIGINT UNSIGNED NOT NULL,
@@ -59,6 +65,7 @@ CREATE TABLE guide_day_spot (
     KEY idx_guide_day_spot_spot (spot_id, is_deleted)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 美食分类表。
 CREATE TABLE food_category (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     name VARCHAR(64) NOT NULL,
@@ -78,6 +85,7 @@ CREATE TABLE food_category (
     KEY idx_food_category_icon_file (icon_file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 美食主表。
 CREATE TABLE food (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     food_category_id BIGINT UNSIGNED NOT NULL,
@@ -106,6 +114,7 @@ CREATE TABLE food (
     KEY idx_food_cover_file (cover_file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 美食图片表。
 CREATE TABLE food_image (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     food_id BIGINT UNSIGNED NOT NULL,
@@ -121,6 +130,7 @@ CREATE TABLE food_image (
     KEY idx_food_image_file (file_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- 首页轮播图表。
 CREATE TABLE banner (
     id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     title VARCHAR(128) NOT NULL,
