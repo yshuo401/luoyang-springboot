@@ -22,6 +22,7 @@
 - 运行冒烟：使用临时 MySQL 8 + 临时 Redis + 真实 OSS，跑通管理员登录、RBAC、分类/标签创建、文件上传、景点创建与发布、小程序登录、收藏、公共详情、推荐、审计日志和仪表盘。
 - 启动冒烟：使用临时 MySQL 8 实例执行完整 Flyway 迁移，Spring Boot 成功启动，/actuator/health 返回 UP。
 - 配置冒烟：使用 local profile、远程 MySQL/Redis 和本地 Git 忽略凭据文件启动成功，/actuator/health 返回 UP。
+- 本地运行策略：Flyway 默认关闭，直接使用远程数据库中已存在的 31 张业务表；Flyway 脚本保留用于空库重建/论文说明。
 
 当前未完成或需要环境配合的部分：
 
@@ -205,13 +206,17 @@ docker compose up -d
 docker compose ps -a
 ```
 
-如需手动初始化空库，可在 Windows PowerShell 执行 `deploy/sql/luoyang_tourism_init.sql`（详见 [deploy/sql/README.md](../deploy/sql/README.md)）。手动执行后启动 Spring Boot 前设置：
+毕设本地环境默认关闭 Flyway：
 
-```powershell
-$env:FLYWAY_BASELINE_VERSION = '7'
+```yaml
+spring:
+  flyway:
+    enabled: ${FLYWAY_ENABLED:false}
 ```
 
-空库让 Flyway 自动迁移时保持默认值 `1`，不要对同一空库重复执行手动 SQL 与 Flyway 两套初始化。
+当前远程数据库已经存在 31 张业务表，直接使用这些表启动即可。只有需要重新从空库初始化时，才临时设置 `FLYWAY_ENABLED=true` 并让 V1–V7 执行；如果 `flyway_schema_history` 已有 failed 记录，必须先处理失败记录或重建本地测试库，否则 Flyway 校验会阻止应用启动。
+
+如需手动初始化空库，可执行 `deploy/sql/luoyang_tourism_init.sql`；不要在同一个库混用手动 SQL 和 Flyway 两套初始化流程。
 
 ### 5.3 配置与启动
 
@@ -258,6 +263,7 @@ server:
 | 变量 | 示例 | 说明 |
 |---|---|---|
 | `SPRING_PROFILES_ACTIVE` | `local` | 本地 profile |
+| `FLYWAY_ENABLED` | `false` | 毕设本地默认关闭 Flyway；仅在重新初始化空库时临时设为 `true` |
 | `MYSQL_HOST` / `MYSQL_PORT` | `192.168.100.128` / `3306` | 连接 Linux VM 中的 MySQL |
 | `MYSQL_DATABASE` | `luoyang_tourism` | 库名 |
 | `MYSQL_USERNAME` / `MYSQL_PASSWORD` | 当前 `root` / 本地密码 | 当前隔离 VM 实验可临时使用 root；目标环境必须改为最小权限应用账号 |
@@ -416,7 +422,7 @@ cd D:\luoyang-smart-tourism\springboot
 
 | 现象 | 优先检查 |
 |---|---|
-| Flyway 启动失败 | 数据库是否存在、账号权限、历史脚本是否被修改、字符集是否为 `utf8mb4` |
+| Flyway 启动失败 | 本地默认应设置 `FLYWAY_ENABLED=false`；若启用，检查 `flyway_schema_history` 是否有 failed 记录、历史脚本是否被修改、字符集是否为 `utf8mb4` |
 | 401 但 Token 看似正确 | `aud`、`token_type`、issuer、公钥、时钟偏差、Redis 黑名单 |
 | 管理端跨域/Cookie 丢失 | Vite `withCredentials`、后端 CORS、Cookie `SameSite/Secure`、HTTPS |
 | Nginx 返回 502 | Spring Boot 是否绑定 `0.0.0.0:8080`、Windows 防火墙、Linux VM 是否能访问 `192.168.100.1:8080` |

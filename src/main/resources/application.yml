@@ -15,7 +15,7 @@ spring:
       maximum-pool-size: 12
       connection-timeout: 10000
   flyway:
-    enabled: true
+    enabled: ${FLYWAY_ENABLED:false}
     baseline-on-migrate: true
     baseline-version: ${FLYWAY_BASELINE_VERSION:1}
     locations: classpath:db/migration
