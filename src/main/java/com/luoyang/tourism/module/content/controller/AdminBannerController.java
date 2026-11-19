@@ -81,7 +81,7 @@ public class AdminBannerController {
     @PreAuthorize("hasAuthority('PERM_content:banner:delete')")
     @Operation(summary = "软删除轮播图")
     public ApiResponse<Void> delete(@PathVariable Long id,
-                                    @RequestParam Integer version,
+                                    @RequestParam("version") Integer version,
                                     @AuthenticationPrincipal Jwt jwt) {
         service.delete(id, version, AuthClaims.userId(jwt));
         return ApiResponse.success();

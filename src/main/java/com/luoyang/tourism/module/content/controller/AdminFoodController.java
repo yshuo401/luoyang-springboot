@@ -72,7 +72,7 @@ public class AdminFoodController {
     @PreAuthorize("hasAuthority('PERM_content:food:publish')")
     @Operation(summary = "发布美食")
     public ApiResponse<ContentVos.AdminFood> publish(@PathVariable Long id,
-                                                      @RequestParam Integer version,
+                                                      @RequestParam("version") Integer version,
                                                       @AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.success(service.publish(id, version, AuthClaims.userId(jwt)));
     }
@@ -81,7 +81,7 @@ public class AdminFoodController {
     @PreAuthorize("hasAuthority('PERM_content:food:publish')")
     @Operation(summary = "下架美食")
     public ApiResponse<ContentVos.AdminFood> unpublish(@PathVariable Long id,
-                                                        @RequestParam Integer version,
+                                                        @RequestParam("version") Integer version,
                                                         @AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.success(service.unpublish(id, version, AuthClaims.userId(jwt)));
     }
@@ -90,7 +90,7 @@ public class AdminFoodController {
     @PreAuthorize("hasAuthority('PERM_content:food:delete')")
     @Operation(summary = "软删除美食")
     public ApiResponse<Void> delete(@PathVariable Long id,
-                                    @RequestParam Integer version,
+                                    @RequestParam("version") Integer version,
                                     @AuthenticationPrincipal Jwt jwt) {
         service.delete(id, version, AuthClaims.userId(jwt));
         return ApiResponse.success();

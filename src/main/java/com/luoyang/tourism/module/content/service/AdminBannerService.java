@@ -78,6 +78,9 @@ public class AdminBannerService {
         if (request.startAt() != null && request.endAt() != null && !request.startAt().isBefore(request.endAt())) {
             throw new BizException(ResultCode.BAD_REQUEST, "轮播图开始时间必须早于结束时间");
         }
+        if (request.status() != null && request.status() != 0 && request.status() != 1) {
+            throw new BizException(ResultCode.BAD_REQUEST, "轮播图状态值不合法");
+        }
         int linkType = request.linkType();
         if (linkType == 0) {
             return;

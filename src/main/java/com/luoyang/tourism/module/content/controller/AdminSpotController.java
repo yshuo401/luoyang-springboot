@@ -73,7 +73,7 @@ public class AdminSpotController {
     @PreAuthorize("hasAuthority('PERM_content:spot:publish')")
     @Operation(summary = "发布景点")
     public ApiResponse<ContentVos.AdminSpot> publish(@PathVariable Long id,
-                                                      @RequestParam Integer version,
+                                                      @RequestParam("version") Integer version,
                                                       @AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.success(service.publish(id, version, AuthClaims.userId(jwt)));
     }
@@ -82,7 +82,7 @@ public class AdminSpotController {
     @PreAuthorize("hasAuthority('PERM_content:spot:publish')")
     @Operation(summary = "下架景点")
     public ApiResponse<ContentVos.AdminSpot> unpublish(@PathVariable Long id,
-                                                        @RequestParam Integer version,
+                                                        @RequestParam("version") Integer version,
                                                         @AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.success(service.unpublish(id, version, AuthClaims.userId(jwt)));
     }
@@ -100,7 +100,7 @@ public class AdminSpotController {
     @PreAuthorize("hasAuthority('PERM_content:spot:delete')")
     @Operation(summary = "软删除景点")
     public ApiResponse<Void> delete(@PathVariable Long id,
-                                    @RequestParam Integer version,
+                                    @RequestParam("version") Integer version,
                                     @AuthenticationPrincipal Jwt jwt) {
         service.delete(id, version, AuthClaims.userId(jwt));
         return ApiResponse.success();

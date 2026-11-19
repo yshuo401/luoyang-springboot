@@ -1,9 +1,33 @@
 # Spring Boot 业务后端（`springboot/`）
 
-> 状态：架构文档已就绪，工程骨架待初始化。  
-> 技术栈：Java 17、Spring Boot、Spring Security、MyBatis、Redis、Flyway、Knife4j/Springdoc、阿里云 OSS。  
-> 本地端口：`8080`。  
+> 状态：核心业务后端已实现，正在进入全链路联调与验收阶段。
+> 技术栈：Java 17、Spring Boot、Spring Security、MyBatis、Redis、Flyway、Knife4j/Springdoc、阿里云 OSS。
+> 本地端口：`8080`。
 > 系统角色：**唯一对外业务入口**，负责 JWT、RBAC、限流、审计、业务 CRUD、推荐编排、文件代理和 AI 会话持久化。
+
+## 当前实现状态（2026-11-19）
+
+已落地并通过编译、上下文测试和临时 MySQL 8 运行验证：
+
+- 工程基础设施：统一响应、全局异常、TraceId、CORS、Knife4j/Springdoc、Redis、Flyway、Hikari 连接池配置。
+- 数据库：31 张业务表，7 个迁移版本；实测物理外键数量为 0。
+- 认证：微信登录、管理员登录、Access/Refresh Token、App/Admin audience 隔离、Redis Refresh 轮换、失败锁定、改密、token_version 失效。
+- 内容：分类、标签、景点、攻略、美食、轮播图、软删除、发布/下架、乐观锁、XSS 清洗和公共只读 API。
+- 文件：阿里云 OSS 私有上传、对象键生成、SHA-256、签名 URL、引用保护和魔法字节校验；Bucket 位于 oss-cn-beijing，已实测上传和删除。
+- 小程序用户：资料、偏好、收藏、行为上报、确定性推荐算法和推荐日志。
+- AI：Java 侧会话事实、固定 ULID threadId、Redis 线程锁、幂等、checkpoint 恢复历史、资料不足映射和 Java 内部工具接口。
+- 知识库：文档上传、知识文档版本、索引任务、FastAPI HMAC 提交、定时轮询和删除补偿。
+- 管理端：小程序用户、管理员、角色权限、权限树、系统配置、操作审计、统计仪表盘。
+- 测试：JWT audience/类型隔离、HMAC canonical string、AI 幂等、资料不足、XSS、无物理外键、安全入口、OpenAPI 可用性，共 18 个测试通过。
+- 运行冒烟：使用临时 MySQL 8 + 临时 Redis + 真实 OSS，跑通管理员登录、RBAC、分类/标签创建、文件上传、景点创建与发布、小程序登录、收藏、公共详情、推荐、审计日志和仪表盘。
+- 启动冒烟：使用临时 MySQL 8 实例执行完整 Flyway 迁移，Spring Boot 成功启动，/actuator/health 返回 UP。
+
+当前未完成或需要环境配合的部分：
+
+- 真实 Redis 服务需要启动；当前本机未启动 Redis 时，Refresh、限流和 AI 会话锁相关接口无法完成真实链路。
+- 本机 application-local.yml 默认连接 192.168.100.128 的 MySQL/Redis；实际密码需通过环境变量注入。
+- FastAPI AI 服务未启动时，AI 接口按设计返回 50300；Java 侧不会直接执行 Agent/RAG。
+- OSS 真实密钥只保存在 Git 忽略的 config/application-secret.yml，不进入仓库。
 
 ## 1. 开发前门禁（必须阅读）
 
@@ -227,7 +251,7 @@ server:
 | `REDIS_PASSWORD` | 当前为空 | 当前隔离 VM 无密码；启用密码后必须与 Linux 配置一致 |
 | `JWT_ISSUER` | `luoyang-tourism` | 统一签发者 |
 | `JWT_PRIVATE_KEY_PATH` / `JWT_PUBLIC_KEY_PATH` | 本机路径 | App/Admin 建议使用不同密钥对 |
-| `OSS_ENDPOINT` / `OSS_BUCKET` | 阿里云值 | Bucket 必须私有 |
+| `APP_OSS_ENABLED` / `OSS_ENDPOINT` / `OSS_BUCKET` | `true` / `https://oss-cn-beijing.aliyuncs.com` / `luoyang-smart-tourism` | Bucket 必须私有；本地 `application-local.yml` 默认启用 |
 | `OSS_ACCESS_KEY_ID` / `OSS_ACCESS_KEY_SECRET` | 不提交 | 最小权限 RAM 用户 |
 | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` | 不提交 | `jscode2session` |
 | `AI_SERVICE_BASE_URL` | `http://127.0.0.1:8000` | 仅 Java 使用 |

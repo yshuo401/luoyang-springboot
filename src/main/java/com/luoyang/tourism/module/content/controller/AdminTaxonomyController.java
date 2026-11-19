@@ -84,7 +84,7 @@ public class AdminTaxonomyController {
     @PreAuthorize("hasAuthority('PERM_content:category:delete')")
     @Operation(summary = "删除分类")
     public ApiResponse<Void> deleteCategory(@PathVariable Long id,
-                                            @RequestParam Integer version,
+                                            @RequestParam("version") Integer version,
                                             @AuthenticationPrincipal Jwt jwt) {
         service.deleteCategory(id, version, AuthClaims.userId(jwt));
         return ApiResponse.success();
@@ -135,7 +135,7 @@ public class AdminTaxonomyController {
     @PreAuthorize("hasAuthority('PERM_content:tag:delete')")
     @Operation(summary = "删除标签")
     public ApiResponse<Void> deleteTag(@PathVariable Long id,
-                                       @RequestParam Integer version,
+                                       @RequestParam("version") Integer version,
                                        @AuthenticationPrincipal Jwt jwt) {
         service.deleteTag(id, version, AuthClaims.userId(jwt));
         return ApiResponse.success();
@@ -182,7 +182,7 @@ public class AdminTaxonomyController {
     @PreAuthorize("hasAuthority('PERM_content:food-category:delete')")
     @Operation(summary = "删除美食分类")
     public ApiResponse<Void> deleteFoodCategory(@PathVariable Long id,
-                                                @RequestParam Integer version,
+                                                @RequestParam("version") Integer version,
                                                 @AuthenticationPrincipal Jwt jwt) {
         service.deleteFoodCategory(id, version, AuthClaims.userId(jwt));
         return ApiResponse.success();

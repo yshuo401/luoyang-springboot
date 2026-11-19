@@ -82,7 +82,7 @@ public class AdminGuideController {
     @PreAuthorize("hasAuthority('PERM_content:guide:publish')")
     @Operation(summary = "发布攻略")
     public ApiResponse<ContentVos.AdminGuide> publish(@PathVariable Long id,
-                                                       @RequestParam Integer version,
+                                                       @RequestParam("version") Integer version,
                                                        @AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.success(service.publish(id, version, AuthClaims.userId(jwt)));
     }
@@ -91,7 +91,7 @@ public class AdminGuideController {
     @PreAuthorize("hasAuthority('PERM_content:guide:publish')")
     @Operation(summary = "下架攻略")
     public ApiResponse<ContentVos.AdminGuide> unpublish(@PathVariable Long id,
-                                                         @RequestParam Integer version,
+                                                         @RequestParam("version") Integer version,
                                                          @AuthenticationPrincipal Jwt jwt) {
         return ApiResponse.success(service.unpublish(id, version, AuthClaims.userId(jwt)));
     }
@@ -100,7 +100,7 @@ public class AdminGuideController {
     @PreAuthorize("hasAuthority('PERM_content:guide:delete')")
     @Operation(summary = "软删除攻略")
     public ApiResponse<Void> delete(@PathVariable Long id,
-                                    @RequestParam Integer version,
+                                    @RequestParam("version") Integer version,
                                     @AuthenticationPrincipal Jwt jwt) {
         service.delete(id, version, AuthClaims.userId(jwt));
         return ApiResponse.success();
