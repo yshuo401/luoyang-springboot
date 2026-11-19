@@ -12,6 +12,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * ContentDtos 数据传输对象，用于接口请求参数和内部契约。
+ */
 public final class ContentDtos {
     private ContentDtos() {
     }

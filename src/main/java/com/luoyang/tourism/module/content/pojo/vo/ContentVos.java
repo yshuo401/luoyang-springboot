@@ -4,6 +4,9 @@ import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+/**
+ * ContentVos 视图对象，用于接口响应展示。
+ */
 public final class ContentVos {
     private ContentVos() {
     }

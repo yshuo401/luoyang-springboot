@@ -10,6 +10,7 @@ import com.luoyang.tourism.module.auth.pojo.vo.AuthVos;
  * AppUserService 业务接口。
  * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
  */
+
 public interface AppUserService {
     /** 查询用户资料。 */
     public AuthVos.AppUserVO profile(Long userId);

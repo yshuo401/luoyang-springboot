@@ -4,6 +4,9 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * SystemVos 视图对象，用于接口响应展示。
+ */
 public final class SystemVos {
     private SystemVos() {
     }

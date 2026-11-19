@@ -7,6 +7,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 
+/**
+ * InternalAiDtos 数据传输对象，用于接口请求参数和内部契约。
+ */
 public final class InternalAiDtos {
     private InternalAiDtos() {
     }

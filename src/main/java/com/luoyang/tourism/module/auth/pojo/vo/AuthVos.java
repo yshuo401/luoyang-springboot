@@ -3,6 +3,9 @@ package com.luoyang.tourism.module.auth.pojo.vo;
 import java.time.OffsetDateTime;
 import java.util.List;
 
+/**
+ * AuthVos 视图对象，用于接口响应展示。
+ */
 public final class AuthVos {
     private AuthVos() {
     }

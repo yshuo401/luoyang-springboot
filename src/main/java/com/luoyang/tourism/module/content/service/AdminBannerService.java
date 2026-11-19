@@ -8,6 +8,7 @@ import com.luoyang.tourism.module.content.pojo.vo.ContentVos;
  * AdminBannerService 业务接口。
  * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
  */
+
 public interface AdminBannerService {
     /** 分页查询数据列表。 */
     public PageResult<ContentVos.AdminBanner> list(String position, Integer status, Integer page, Integer pageSize);

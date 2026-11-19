@@ -3,6 +3,9 @@ package com.luoyang.tourism.integration.ai;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * AiDtos AI 内部接口数据传输对象。
+ */
 public final class AiDtos {
     private AiDtos() {
     }

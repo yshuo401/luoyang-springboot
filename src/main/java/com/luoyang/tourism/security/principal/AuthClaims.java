@@ -4,6 +4,9 @@ import com.luoyang.tourism.common.api.ResultCode;
 import com.luoyang.tourism.common.exception.BizException;
 import org.springframework.security.oauth2.jwt.Jwt;
 
+/**
+ * AuthClaims 认证声明读取工具。
+ */
 public final class AuthClaims {
     private AuthClaims() {
     }

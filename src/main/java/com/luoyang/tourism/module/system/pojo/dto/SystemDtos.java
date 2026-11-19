@@ -10,6 +10,9 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.util.List;
 
+/**
+ * SystemDtos 数据传输对象，用于接口请求参数和内部契约。
+ */
 public final class SystemDtos {
     private SystemDtos() {
     }

@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
  * KnowledgeService 业务接口。
  * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
  */
+
 public interface KnowledgeService {
     /** 上传文件或文档。 */
     public KnowledgeVos.UploadResult upload(MultipartFile file, String title, String category, Integer versionNo, LocalDateTime effectiveAt, Long adminId);

@@ -8,6 +8,9 @@ import jakarta.validation.constraints.Size;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * AppUserDtos 数据传输对象，用于接口请求参数和内部契约。
+ */
 public final class AppUserDtos {
     private AppUserDtos() {
     }

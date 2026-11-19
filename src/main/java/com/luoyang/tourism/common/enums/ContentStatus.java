@@ -4,6 +4,7 @@ package com.luoyang.tourism.common.enums;
  * ContentStatus 通用组件。
  * <p>为各业务模块提供统一的基础能力。</p>
  */
+
 public enum ContentStatus {
     DRAFT(0), PUBLISHED(1), UNPUBLISHED(2), ARCHIVED(3);
 

@@ -6,6 +6,7 @@ import com.luoyang.tourism.common.api.ResultCode;
  * BizException 通用组件。
  * <p>为各业务模块提供统一的基础能力。</p>
  */
+
 public class BizException extends RuntimeException {
     private final ResultCode resultCode;
 

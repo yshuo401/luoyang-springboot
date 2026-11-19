@@ -12,6 +12,7 @@ import java.util.List;
  * ContentAssembler 业务接口。
  * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
  */
+
 public interface ContentAssembler {
     /** 执行 tag 业务操作。 */
     public ContentVos.TagVO tag(Tag tag);

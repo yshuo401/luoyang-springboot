@@ -8,6 +8,7 @@ import java.util.List;
  * RbacService 业务接口。
  * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
  */
+
 public interface RbacService {
     /** 查询角色列表。 */
     public List<SystemVos.RoleVO> roles(String keyword, Integer status);

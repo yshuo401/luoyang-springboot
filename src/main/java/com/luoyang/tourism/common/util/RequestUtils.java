@@ -2,6 +2,9 @@ package com.luoyang.tourism.common.util;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+/**
+ * RequestUtils 通用工具类。
+ */
 public final class RequestUtils {
     private RequestUtils() {
     }

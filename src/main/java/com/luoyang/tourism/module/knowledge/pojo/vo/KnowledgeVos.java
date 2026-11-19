@@ -2,6 +2,9 @@ package com.luoyang.tourism.module.knowledge.pojo.vo;
 
 import java.time.OffsetDateTime;
 
+/**
+ * KnowledgeVos 视图对象，用于接口响应展示。
+ */
 public final class KnowledgeVos {
     private KnowledgeVos() {
     }

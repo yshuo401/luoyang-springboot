@@ -4,6 +4,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+/**
+ * AuthDtos 数据传输对象，用于接口请求参数和内部契约。
+ */
 public final class AuthDtos {
     private AuthDtos() {
     }

@@ -8,6 +8,7 @@ import com.luoyang.tourism.module.content.pojo.vo.ContentVos;
  * AdminFoodService 业务接口。
  * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
  */
+
 public interface AdminFoodService {
     /** 分页查询数据列表。 */
     public PageResult<ContentVos.AdminFood> list(String keyword, Long categoryId, Integer status, Integer page, Integer pageSize);

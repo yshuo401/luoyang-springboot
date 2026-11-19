@@ -3,6 +3,9 @@ package com.luoyang.tourism.common.api;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Paging 通用分页工具。
+ */
 public final class Paging {
     public static final int DEFAULT_PAGE = 1;
     public static final int DEFAULT_PAGE_SIZE = 10;

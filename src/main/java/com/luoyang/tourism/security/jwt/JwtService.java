@@ -20,6 +20,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
  * JwtService 安全组件。
  * <p>负责 JWT、权限、限流或请求安全校验。</p>
  */
+
 public class JwtService {
     private final AppProperties properties;
     private final JwtEncoder appEncoder;

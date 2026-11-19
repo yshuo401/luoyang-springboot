@@ -8,6 +8,7 @@ import com.luoyang.tourism.module.system.pojo.vo.SystemVos;
  * SystemConfigService 业务接口。
  * <p>定义该领域的业务能力，具体实现位于 service.impl 包。</p>
  */
+
 public interface SystemConfigService {
     /** 分页查询数据列表。 */
     public PageResult<SystemVos.ConfigVO> list(String keyword, Integer page, Integer pageSize);

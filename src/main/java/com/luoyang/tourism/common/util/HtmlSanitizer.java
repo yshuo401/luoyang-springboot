@@ -4,6 +4,9 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Safelist;
 
+/**
+ * HtmlSanitizer 通用工具类。
+ */
 public final class HtmlSanitizer {
     private static final Safelist SAFELIST = Safelist.relaxed()
             .addTags("h1", "h2", "h3", "h4", "h5", "h6", "figure", "figcaption", "section",
