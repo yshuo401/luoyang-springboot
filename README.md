@@ -21,6 +21,7 @@
 - 测试：JWT audience/类型隔离、HMAC canonical string、AI 幂等、资料不足、XSS、无物理外键、安全入口、OpenAPI 可用性，共 18 个测试通过。
 - 运行冒烟：使用临时 MySQL 8 + 临时 Redis + 真实 OSS，跑通管理员登录、RBAC、分类/标签创建、文件上传、景点创建与发布、小程序登录、收藏、公共详情、推荐、审计日志和仪表盘。
 - 启动冒烟：使用临时 MySQL 8 实例执行完整 Flyway 迁移，Spring Boot 成功启动，/actuator/health 返回 UP。
+- 配置冒烟：使用 local profile、远程 MySQL/Redis 和本地 Git 忽略凭据文件启动成功，/actuator/health 返回 UP。
 
 当前未完成或需要环境配合的部分：
 
@@ -28,7 +29,7 @@
 - 本机 application-local.yml 默认连接 192.168.100.128 的 MySQL/Redis；实际密码需通过环境变量注入。
 - FastAPI AI 服务未启动时，AI 接口按设计返回 50300；Java 侧不会直接执行 Agent/RAG。
 - OSS 真实密钥只保存在 Git 忽略的 config/application-secret.yml，不进入仓库。
-- 本地管理员默认不自动创建。首次启动前请显式设置 BOOTSTRAP_ADMIN_ENABLED=true、BOOTSTRAP_ADMIN_PASSWORD（至少 8 位且包含字母和数字）；创建成功后关闭该开关并修改密码。
+- 本地首次启动会读取 Git 忽略的 config/application-secret.yml 并创建 admin 管理员；初始密码和 JWT 密钥记录在项目根的 all password/PASSWORDS.md。创建成功后应在管理端修改密码，并将 BOOTSTRAP_ADMIN_ENABLED 设为 false。
 
 ## 1. 开发前门禁（必须阅读）
 
@@ -154,9 +155,13 @@ springboot/
 │  ├─ application-test.yml
 │  ├─ mapper/<module>/*.xml
 │  ├─ db/migration/
-│  │  ├─ V1__baseline_schema.sql
-│  │  ├─ V2__seed_permissions.sql
-│  │  └─ V3__seed_demo_data.sql
+│  │  ├─ V1__content_core.sql
+│  │  ├─ V2__content_guides_foods_banner.sql
+│  │  ├─ V3__user_domain.sql
+│  │  ├─ V4__admin_rbac.sql
+│  │  ├─ V5__file_and_config.sql
+│  │  ├─ V6__ai_and_knowledge.sql
+│  │  └─ V7__seed_permissions_and_roles.sql
 │  └─ templates/
 └─ src/test/java/com/luoyang/tourism/
    ├─ module/
@@ -168,16 +173,16 @@ springboot/
 
 ```text
 controller/      # PublicXxxController / AppXxxController / AdminXxxController
-service/         # 业务接口
-service/impl/    # 业务实现
+service/         # 业务接口（只放接口）
+service/impl/    # 接口实现，XxxServiceImpl
 mapper/          # MyBatis Mapper 接口
-entity/          # 数据库实体，不出 Controller
-dto/             # 请求 DTO
-vo/              # 响应 VO
-converter/       # Entity <-> DTO/VO
+pojo/
+├─ dto/          # 接口请求 DTO
+├─ entity/       # 数据库实体，不出 Controller
+└─ vo/           # 接口响应 VO
 ```
 
-新增目录前先判断是否真的需要。不要为只有一两个类的模块创建多层空包。
+新增目录前先判断是否真的需要。不要为只有一两个类的模块创建多层空包。所有 Controller、Service 接口、Service 实现、Mapper、Entity、DTO、VO 必须有中文类级注释；Service 公开方法必须有中文 Javadoc；复杂事务、幂等、HMAC、权限和脱敏逻辑必须有中文行内注释。
 
 ## 5. 本地启动
 
@@ -199,6 +204,14 @@ cd /opt/luoyang-smart-tourism/deploy
 docker compose up -d
 docker compose ps -a
 ```
+
+如需手动初始化空库，可在 Windows PowerShell 执行 `deploy/sql/luoyang_tourism_init.sql`（详见 [deploy/sql/README.md](../deploy/sql/README.md)）。手动执行后启动 Spring Boot 前设置：
+
+```powershell
+$env:FLYWAY_BASELINE_VERSION = '7'
+```
+
+空库让 Flyway 自动迁移时保持默认值 `1`，不要对同一空库重复执行手动 SQL 与 Flyway 两套初始化。
 
 ### 5.3 配置与启动
 
@@ -240,7 +253,7 @@ server:
 
 ## 6. 环境变量
 
-真实值只放本机环境变量或 IDEA Run Configuration，不提交 `.env`。
+真实值不写入公开 Markdown、源码或 Git 历史。本地开发可放在 Git 忽略的 `config/application-secret.yml`，首次配置参考 `config/application-secret.yml.example`；凭据清单位于项目根目录的 `all password/PASSWORDS.md`。生产环境必须改用服务器环境变量或密钥管理服务。
 
 | 变量 | 示例 | 说明 |
 |---|---|---|
@@ -251,18 +264,20 @@ server:
 | `REDIS_HOST` / `REDIS_PORT` | `192.168.100.128` / `6379` | 连接 Linux VM 中的 Redis |
 | `REDIS_PASSWORD` | 当前为空 | 当前隔离 VM 无密码；启用密码后必须与 Linux 配置一致 |
 | `JWT_ISSUER` | `luoyang-tourism` | 统一签发者 |
-| `JWT_PRIVATE_KEY_PATH` / `JWT_PUBLIC_KEY_PATH` | 本机路径 | App/Admin 建议使用不同密钥对 |
+| `JWT_APP_SECRET` / `JWT_ADMIN_SECRET` | 不提交 | App/Admin 使用不同 HMAC 密钥，至少 32 字节 |
 | `APP_OSS_ENABLED` / `OSS_ENDPOINT` / `OSS_BUCKET` | `true` / `https://oss-cn-beijing.aliyuncs.com` / `luoyang-smart-tourism` | Bucket 必须私有；本地 `application-local.yml` 默认启用 |
 | `OSS_ACCESS_KEY_ID` / `OSS_ACCESS_KEY_SECRET` | 不提交 | 最小权限 RAM 用户 |
 | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` | 不提交 | `jscode2session` |
 | `AI_SERVICE_BASE_URL` | `http://127.0.0.1:8000` | 仅 Java 使用 |
-| `INTERNAL_SHARED_SECRET` | 本地随机长串 | Java/FastAPI HMAC |
+| `INTERNAL_SHARED_SECRET` | 不提交 | Java/FastAPI HMAC，至少 32 字节 |
+| `BOOTSTRAP_ADMIN_USERNAME` / `BOOTSTRAP_ADMIN_PASSWORD` | `admin` / 不提交 | 仅首次本地初始化管理员使用 |
 | `INTERNAL_TIMESTAMP_TOLERANCE_SECONDS` | `300` | 防重放时间窗 |
 
 约定：
 
 - AI 服务的 Qwen Key 只放 `ai-service`，Spring Boot 不持有 `QWEN_API_KEY`。
-- Spring Boot 只持有 `AI_SERVICE_BASE_URL` 和 `INTERNAL_SHARED_SECRET`。
+- 针对 AI 服务，Spring Boot 只持有 `AI_SERVICE_BASE_URL` 和 `INTERNAL_SHARED_SECRET`；Qwen Key 不进入 Java 进程。
+- 本机真实凭据位于 Git 忽略的 `springboot/config/application-secret.yml`，凭据清单位于项目根的 `all password/PASSWORDS.md`，两者都不得提交。
 - 不同环境使用不同密钥；轮换密钥必须同时更新 Java 与 Python，并先验证 HMAC 契约测试。
 - 日志、Swagger 示例和异常响应不得输出变量值。
 
@@ -333,6 +348,8 @@ timestamp + "\n" + METHOD + "\n" + pathWithSortedQuery + "\n" + requestId + "\n"
 - `/internal/**` 在 Nginx 层 404，在 Spring Security 层再次校验 HMAC。
 
 ## 8. 数据库与持久化规则
+
+31 张表的实际审查结果见 [DATABASE-REVIEW.md](DATABASE-REVIEW.md)。数据库迁移以 `src/main/resources/db/migration/` 为唯一事实源。
 
 1. 表结构事实源是 `src/main/resources/db/migration/V*.sql`，不是 Markdown。
 2. **严禁物理外键、`REFERENCES`、数据库级联删除**；关联字段只做逻辑外键，由 Service 校验。
