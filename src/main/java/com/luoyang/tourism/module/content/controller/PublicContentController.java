@@ -6,6 +6,7 @@ import com.luoyang.tourism.common.api.ResultCode;
 import com.luoyang.tourism.common.exception.BizException;
 import com.luoyang.tourism.module.content.service.PublicContentService;
 import com.luoyang.tourism.module.content.vo.ContentVos;
+import com.luoyang.tourism.security.principal.AuthClaims;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,8 @@ import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,8 +64,9 @@ public class PublicContentController {
 
     @GetMapping("/spots/{id}")
     @Operation(summary = "景点详情")
-    public ApiResponse<ContentVos.SpotDetail> spot(@PathVariable Long id) {
-        return ApiResponse.success(service.spot(id));
+    public ApiResponse<ContentVos.SpotDetail> spot(@PathVariable Long id,
+                                                    @AuthenticationPrincipal Jwt jwt) {
+        return ApiResponse.success(service.spot(id, jwt == null ? null : AuthClaims.userId(jwt)));
     }
 
     @GetMapping("/spots/{id}/related")
@@ -84,8 +88,9 @@ public class PublicContentController {
 
     @GetMapping("/guides/{id}")
     @Operation(summary = "攻略详情及每日行程")
-    public ApiResponse<ContentVos.GuideDetail> guide(@PathVariable Long id) {
-        return ApiResponse.success(service.guide(id));
+    public ApiResponse<ContentVos.GuideDetail> guide(@PathVariable Long id,
+                                                      @AuthenticationPrincipal Jwt jwt) {
+        return ApiResponse.success(service.guide(id, jwt == null ? null : AuthClaims.userId(jwt)));
     }
 
     @GetMapping("/foods")
@@ -102,8 +107,9 @@ public class PublicContentController {
 
     @GetMapping("/foods/{id}")
     @Operation(summary = "美食详情")
-    public ApiResponse<ContentVos.FoodDetail> food(@PathVariable Long id) {
-        return ApiResponse.success(service.food(id));
+    public ApiResponse<ContentVos.FoodDetail> food(@PathVariable Long id,
+                                                    @AuthenticationPrincipal Jwt jwt) {
+        return ApiResponse.success(service.food(id, jwt == null ? null : AuthClaims.userId(jwt)));
     }
 
     @GetMapping("/search")

@@ -55,6 +55,10 @@ public class ContentAssembler {
     }
 
     public ContentVos.SpotDetail spotDetail(ScenicSpot spot) {
+        return spotDetail(spot, null);
+    }
+
+    public ContentVos.SpotDetail spotDetail(ScenicSpot spot, Boolean favorite) {
         List<ContentVos.ImageVO> images = mapper.selectSpotImages(spot.getId()).stream()
                 .map(this::scenicImage).toList();
         List<String> related = mapper.selectRelatedSpots(spot.getId(), spot.getCategoryId(), 6).stream()
@@ -64,7 +68,7 @@ public class ContentAssembler {
                 fileUrlService.signedUrl(spot.getCoverFileId()), spotTags(spot.getId()), spot.getAddress(),
                 spot.getLongitude(), spot.getLatitude(), spot.getOpenTimeDesc(), spot.getTicketInfo(),
                 spot.getPlayDurationMinutes(), spot.getPhone(), spot.getTrafficInfo(), spot.getTips(),
-                spot.getHeatScore(), spot.getContentHtml(), images, null, related,
+                spot.getHeatScore(), spot.getContentHtml(), images, favorite, related,
                 TimeUtils.offset(spot.getPublishedAt()));
     }
 
@@ -75,6 +79,10 @@ public class ContentAssembler {
     }
 
     public ContentVos.GuideDetail guideDetail(TravelGuide guide, boolean publicOnly) {
+        return guideDetail(guide, publicOnly, null);
+    }
+
+    public ContentVos.GuideDetail guideDetail(TravelGuide guide, boolean publicOnly, Boolean favorite) {
         List<GuideDay> days = mapper.selectGuideDays(guide.getId());
         List<GuideDaySpot> daySpots = mapper.selectGuideDaySpots(guide.getId());
         Map<Long, List<GuideDaySpot>> grouped = new LinkedHashMap<>();
@@ -94,7 +102,7 @@ public class ContentAssembler {
         }
         return new ContentVos.GuideDetail(Long.toString(guide.getId()), guide.getTitle(), guide.getSummary(),
                 fileUrlService.signedUrl(guide.getCoverFileId()), guide.getAuthorName(), guide.getTravelDays(),
-                guide.getDifficulty(), guide.getSuitableSeason(), guide.getContentHtml(), dayVos, null,
+                guide.getDifficulty(), guide.getSuitableSeason(), guide.getContentHtml(), dayVos, favorite,
                 guide.getHeatScore(), TimeUtils.offset(guide.getPublishedAt()));
     }
 
@@ -106,12 +114,16 @@ public class ContentAssembler {
     }
 
     public ContentVos.FoodDetail foodDetail(Food food) {
+        return foodDetail(food, null);
+    }
+
+    public ContentVos.FoodDetail foodDetail(Food food, Boolean favorite) {
         List<ContentVos.ImageVO> images = mapper.selectFoodImages(food.getId()).stream()
                 .map(this::foodImage).toList();
         return new ContentVos.FoodDetail(Long.toString(food.getId()), food.getName(), food.getSummary(),
                 fileUrlService.signedUrl(food.getCoverFileId()), Long.toString(food.getFoodCategoryId()),
                 food.getCategoryName(), food.getDescription(), food.getPriceRange(),
-                flavorTags(food.getFlavorTags()), food.getRecommendShops(), food.getArea(), images, null,
+                flavorTags(food.getFlavorTags()), food.getRecommendShops(), food.getArea(), images, favorite,
                 food.getHeatScore(), TimeUtils.offset(food.getPublishedAt()));
     }
 

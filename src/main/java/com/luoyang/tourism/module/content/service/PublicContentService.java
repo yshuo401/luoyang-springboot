@@ -9,6 +9,8 @@ import com.luoyang.tourism.module.content.entity.ScenicSpot;
 import com.luoyang.tourism.module.content.entity.TravelGuide;
 import com.luoyang.tourism.module.content.mapper.ContentMapper;
 import com.luoyang.tourism.module.content.vo.ContentVos;
+import com.luoyang.tourism.common.enums.BizType;
+import com.luoyang.tourism.module.appuser.service.AppUserService;
 import com.luoyang.tourism.module.file.service.FileUrlService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,7 @@ public class PublicContentService {
     private final ContentMapper mapper;
     private final ContentAssembler assembler;
     private final FileUrlService fileUrlService;
+    private final AppUserService appUserService;
 
     public ContentVos.HomeVO home() {
         List<ContentVos.BannerVO> banners = mapper.selectPublicBanners("HOME_TOP", LocalDateTime.now())
@@ -86,12 +89,12 @@ public class PublicContentService {
         return Paging.of(records, total, safePage, safeSize);
     }
 
-    public ContentVos.SpotDetail spot(Long id) {
+    public ContentVos.SpotDetail spot(Long id, Long userId) {
         ScenicSpot spot = mapper.selectSpot(id);
         if (spot == null || !Integer.valueOf(1).equals(spot.getStatus())) {
             throw BizException.notFound();
         }
-        return assembler.spotDetail(spot);
+        return assembler.spotDetail(spot, userId == null ? null : appUserService.isFavorite(userId, BizType.SPOT, id));
     }
 
     public List<ContentVos.SpotCard> relatedSpots(Long id, Integer limit) {
@@ -114,12 +117,13 @@ public class PublicContentService {
         return Paging.of(records, mapper.countGuides(false, trim(keyword), null), safePage, safeSize);
     }
 
-    public ContentVos.GuideDetail guide(Long id) {
+    public ContentVos.GuideDetail guide(Long id, Long userId) {
         TravelGuide guide = mapper.selectGuide(id);
         if (guide == null || !Integer.valueOf(1).equals(guide.getStatus())) {
             throw BizException.notFound();
         }
-        return assembler.guideDetail(guide, true);
+        return assembler.guideDetail(guide, true,
+                userId == null ? null : appUserService.isFavorite(userId, BizType.GUIDE, id));
     }
 
     public PageResult<ContentVos.FoodCard> foods(String keyword, Long categoryId, String flavor,
@@ -134,12 +138,13 @@ public class PublicContentService {
                 safePage, safeSize);
     }
 
-    public ContentVos.FoodDetail food(Long id) {
+    public ContentVos.FoodDetail food(Long id, Long userId) {
         Food food = mapper.selectFood(id);
         if (food == null || !Integer.valueOf(1).equals(food.getStatus())) {
             throw BizException.notFound();
         }
-        return assembler.foodDetail(food);
+        return assembler.foodDetail(food,
+                userId == null ? null : appUserService.isFavorite(userId, BizType.FOOD, id));
     }
 
     public PageResult<ContentVos.SearchItem> search(String keyword, String type, Integer page, Integer pageSize) {

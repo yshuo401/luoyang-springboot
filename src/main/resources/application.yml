@@ -48,6 +48,7 @@ server:
     include-stacktrace: never
 
 mybatis:
+  mapper-locations: classpath*:/mapper/**/*.xml
   configuration:
     map-underscore-to-camel-case: true
     default-fetch-size: 100
@@ -97,6 +98,7 @@ app:
     shared-secret: ${INTERNAL_SHARED_SECRET:}
     timestamp-tolerance-seconds: ${INTERNAL_TIMESTAMP_TOLERANCE_SECONDS:300}
   oss:
+    enabled: ${APP_OSS_ENABLED:false}
     endpoint: ${OSS_ENDPOINT:}
     bucket: ${OSS_BUCKET:luoyang-smart-tourism}
     access-key-id: ${OSS_ACCESS_KEY_ID:}

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.luoyang.tourism.module.appuser.mapper.AppUserMapper">
+    <select id="selectPreferences" resultType="com.luoyang.tourism.module.appuser.entity.UserPreference">
+        SELECT * FROM user_preference WHERE user_id=#{userId} AND is_deleted=0
+        <if test="source != null"> AND source=#{source} </if>
+        ORDER BY preference_type, id
+    </select>
+    <delete id="deleteExplicitPreferences">
+        DELETE FROM user_preference WHERE user_id=#{userId} AND source=1
+    </delete>
+    <insert id="insertPreference" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_preference
+        (user_id, preference_type, preference_key, weight, source, last_interacted_at)
+        VALUES (#{userId}, #{preferenceType}, #{preferenceKey}, #{weight}, #{source}, #{lastInteractedAt})
+    </insert>
+
+    <select id="selectFavorites" resultType="com.luoyang.tourism.module.appuser.entity.UserFavorite">
+        SELECT * FROM user_favorite WHERE user_id=#{userId}
+        <if test="bizType != null"> AND biz_type=#{bizType} </if>
+        ORDER BY created_at DESC, id DESC LIMIT #{offset}, #{limit}
+    </select>
+    <select id="countFavorites" resultType="long">
+        SELECT COUNT(*) FROM user_favorite WHERE user_id=#{userId}
+        <if test="bizType != null"> AND biz_type=#{bizType} </if>
+    </select>
+    <select id="selectFavorite" resultType="com.luoyang.tourism.module.appuser.entity.UserFavorite">
+        SELECT * FROM user_favorite
+        WHERE user_id=#{userId} AND biz_type=#{bizType} AND biz_id=#{bizId}
+    </select>
+    <insert id="insertFavorite" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_favorite (user_id, biz_type, biz_id)
+        VALUES (#{userId}, #{bizType}, #{bizId})
+        ON DUPLICATE KEY UPDATE id=id
+    </insert>
+    <delete id="deleteFavorite">
+        DELETE FROM user_favorite WHERE user_id=#{userId} AND biz_type=#{bizType} AND biz_id=#{bizId}
+    </delete>
+    <select id="isFavorite" resultType="int">
+        SELECT COUNT(*) FROM user_favorite
+        WHERE user_id=#{userId} AND biz_type=#{bizType} AND biz_id=#{bizId}
+    </select>
+    <select id="selectFavoriteBizIds" resultType="long">
+        SELECT biz_id FROM user_favorite WHERE user_id=#{userId} AND biz_type=#{bizType}
+    </select>
+
+    <insert id="insertBehavior" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_behavior
+        (user_id, behavior_type, biz_type, biz_id, keyword, duration_ms, source, metadata, trace_id)
+        VALUES (#{userId}, #{behaviorType}, #{bizType}, #{bizId}, #{keyword}, #{durationMs},
+                #{source}, #{metadata}, #{traceId})
+    </insert>
+    <insert id="insertRecommendationLog" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_recommendation_log
+        (user_id, scene, algorithm_version, request_context, items_json, trace_id)
+        VALUES (#{userId}, #{scene}, #{algorithmVersion}, #{requestContext}, #{itemsJson}, #{traceId})
+    </insert>
+</mapper>
