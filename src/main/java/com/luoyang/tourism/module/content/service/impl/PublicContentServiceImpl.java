@@ -39,8 +39,8 @@ public class PublicContentServiceImpl implements PublicContentService {
     private final FileUrlService fileUrlService;
     private final AppUserService appUserService;
 
-@Override
-public ContentVos.HomeVO home() {
+    @Override
+    public ContentVos.HomeVO home() {
         List<ContentVos.BannerVO> banners = mapper.selectPublicBanners("HOME_TOP", LocalDateTime.now())
                 .stream().map(assembler::banner).toList();
         List<ContentVos.CategoryVO> categories = categories(false);
@@ -53,37 +53,39 @@ public ContentVos.HomeVO home() {
         return new ContentVos.HomeVO(banners, categories, spots, guides, foods);
     }
 
-@Override
-public List<ContentVos.CategoryVO> categories(boolean flat) {
+    @Override
+    public List<ContentVos.CategoryVO> categories(boolean flat) {
         List<ScenicCategory> categories = mapper.selectCategories(false, null, null);
         Map<Long, MutableCategory> nodes = new LinkedHashMap<>();
         for (ScenicCategory category : categories) {
             long count = mapper.countPublishedSpotsInCategory(category.getId());
             nodes.put(category.getId(), new MutableCategory(category, count));
         }
-        List<ContentVos.CategoryVO> roots = new ArrayList<>();
+
+        // 先完成父子挂载，再统一转换成不可变 VO；否则父节点转换后无法再追加 children。
+        List<MutableCategory> rootNodes = new ArrayList<>();
         for (MutableCategory node : nodes.values()) {
             MutableCategory parent = node.category.getParentId() == null || node.category.getParentId() == 0
                     ? null : nodes.get(node.category.getParentId());
             if (parent == null) {
-                roots.add(toCategory(node));
+                rootNodes.add(node);
             } else {
                 parent.children.add(node);
             }
         }
-        roots.sort(Comparator.comparing(ContentVos.CategoryVO::sortOrder));
+        rootNodes.sort(Comparator.comparingInt(node -> sortOrder(node.category)));
         if (flat) {
             return categories.stream().map(category -> new ContentVos.CategoryVO(
-                    Long.toString(category.getId()), Long.toString(category.getParentId()), category.getName(),
+                    Long.toString(category.getId()), nullableId(category.getParentId()), category.getName(),
                     category.getCode(), fileUrlService.signedUrl(category.getIconFileId()), category.getDescription(),
                     category.getSortOrder(), mapper.countPublishedSpotsInCategory(category.getId()), List.of()))
                     .toList();
         }
-        return roots;
+        return rootNodes.stream().map(this::toCategory).toList();
     }
 
-@Override
-public PageResult<ContentVos.SpotCard> spots(String keyword, Long categoryId, List<Long> tagIds,
+    @Override
+    public PageResult<ContentVos.SpotCard> spots(String keyword, Long categoryId, List<Long> tagIds,
                                                  String sort, Double longitude, Double latitude,
                                                  Integer page, Integer pageSize) {
         int safePage = Paging.normalizePage(page);
@@ -97,8 +99,8 @@ public PageResult<ContentVos.SpotCard> spots(String keyword, Long categoryId, Li
         return Paging.of(records, total, safePage, safeSize);
     }
 
-@Override
-public ContentVos.SpotDetail spot(Long id, Long userId) {
+    @Override
+    public ContentVos.SpotDetail spot(Long id, Long userId) {
         ScenicSpot spot = mapper.selectSpot(id);
         if (spot == null || !Integer.valueOf(1).equals(spot.getStatus())) {
             throw BizException.notFound();
@@ -106,8 +108,8 @@ public ContentVos.SpotDetail spot(Long id, Long userId) {
         return assembler.spotDetail(spot, userId == null ? null : appUserService.isFavorite(userId, BizType.SPOT, id));
     }
 
-@Override
-public List<ContentVos.SpotCard> relatedSpots(Long id, Integer limit) {
+    @Override
+    public List<ContentVos.SpotCard> relatedSpots(Long id, Integer limit) {
         ScenicSpot spot = mapper.selectSpot(id);
         if (spot == null || !Integer.valueOf(1).equals(spot.getStatus())) {
             throw BizException.notFound();
@@ -117,8 +119,8 @@ public List<ContentVos.SpotCard> relatedSpots(Long id, Integer limit) {
                 .map(assembler::spotCard).toList();
     }
 
-@Override
-public PageResult<ContentVos.GuideCard> guides(String keyword, String sort, Integer page, Integer pageSize) {
+    @Override
+    public PageResult<ContentVos.GuideCard> guides(String keyword, String sort, Integer page, Integer pageSize) {
         int safePage = Paging.normalizePage(page);
         int safeSize = Paging.normalizePageSize(pageSize);
         String safeSort = sort(sort == null ? "HEAT_DESC" : sort);
@@ -128,8 +130,8 @@ public PageResult<ContentVos.GuideCard> guides(String keyword, String sort, Inte
         return Paging.of(records, mapper.countGuides(false, trim(keyword), null), safePage, safeSize);
     }
 
-@Override
-public ContentVos.GuideDetail guide(Long id, Long userId) {
+    @Override
+    public ContentVos.GuideDetail guide(Long id, Long userId) {
         TravelGuide guide = mapper.selectGuide(id);
         if (guide == null || !Integer.valueOf(1).equals(guide.getStatus())) {
             throw BizException.notFound();
@@ -138,8 +140,8 @@ public ContentVos.GuideDetail guide(Long id, Long userId) {
                 userId == null ? null : appUserService.isFavorite(userId, BizType.GUIDE, id));
     }
 
-@Override
-public PageResult<ContentVos.FoodCard> foods(String keyword, Long categoryId, String flavor,
+    @Override
+    public PageResult<ContentVos.FoodCard> foods(String keyword, Long categoryId, String flavor,
                                                   String sort, Integer page, Integer pageSize) {
         int safePage = Paging.normalizePage(page);
         int safeSize = Paging.normalizePageSize(pageSize);
@@ -151,8 +153,8 @@ public PageResult<ContentVos.FoodCard> foods(String keyword, Long categoryId, St
                 safePage, safeSize);
     }
 
-@Override
-public ContentVos.FoodDetail food(Long id, Long userId) {
+    @Override
+    public ContentVos.FoodDetail food(Long id, Long userId) {
         Food food = mapper.selectFood(id);
         if (food == null || !Integer.valueOf(1).equals(food.getStatus())) {
             throw BizException.notFound();
@@ -161,8 +163,8 @@ public ContentVos.FoodDetail food(Long id, Long userId) {
                 userId == null ? null : appUserService.isFavorite(userId, BizType.FOOD, id));
     }
 
-@Override
-public PageResult<ContentVos.SearchItem> search(String keyword, String type, Integer page, Integer pageSize) {
+    @Override
+    public PageResult<ContentVos.SearchItem> search(String keyword, String type, Integer page, Integer pageSize) {
         String query = trim(keyword);
         if (query == null) {
             throw new BizException(com.luoyang.tourism.common.api.ResultCode.BAD_REQUEST, "搜索关键词不能为空");
@@ -200,12 +202,26 @@ public PageResult<ContentVos.SearchItem> search(String keyword, String type, Int
 
     private ContentVos.CategoryVO toCategory(MutableCategory node) {
         List<ContentVos.CategoryVO> children = node.children.stream()
-                .sorted(Comparator.comparing(child -> child.category.getSortOrder()))
+                .sorted(Comparator.comparingInt(child -> sortOrder(child.category)))
                 .map(this::toCategory).toList();
         ScenicCategory category = node.category;
-        return new ContentVos.CategoryVO(Long.toString(category.getId()), Long.toString(category.getParentId()),
+        return new ContentVos.CategoryVO(Long.toString(category.getId()), nullableId(category.getParentId()),
                 category.getName(), category.getCode(), fileUrlService.signedUrl(category.getIconFileId()),
                 category.getDescription(), category.getSortOrder(), node.spotCount, children);
+    }
+
+    /**
+     * 分类排序值允许为空，缺失时按 0 处理，避免树构建阶段抛出空指针。
+     */
+    private static int sortOrder(ScenicCategory category) {
+        return category.getSortOrder() == null ? 0 : category.getSortOrder();
+    }
+
+    /**
+     * 顶层分类的 parent_id 可能为空；这里显式处理 null，避免自动拆箱触发 NPE。
+     */
+    private static String nullableId(Long id) {
+        return id == null ? null : Long.toString(id);
     }
 
     private String sort(String value) {

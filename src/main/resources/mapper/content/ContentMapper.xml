@@ -48,6 +48,10 @@
     <select id="countSpotsInCategory" resultType="int">
         SELECT COUNT(*) FROM scenic_spot WHERE category_id=#{id} AND is_deleted=0
     </select>
+    <select id="countPublishedSpotsInCategory" resultType="int">
+        SELECT COUNT(*) FROM scenic_spot
+        WHERE category_id=#{id} AND status=1 AND is_deleted=0
+    </select>
     <select id="countCategoryCode" resultType="int">
         SELECT COUNT(*) FROM scenic_category WHERE code=#{code} AND is_deleted=0
         <if test="excludeId != null"> AND id != #{excludeId} </if>
