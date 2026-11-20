@@ -204,7 +204,11 @@ public List<AiChatVos.MessageVO> recentMessages(String threadId, Integer limit) 
             int latency = (int) Math.min(Integer.MAX_VALUE, System.currentTimeMillis() - startedAt);
             // 最终失败也要落库为可见的失败消息，前端才能使用同一个 clientMessageId 重试。
             persistence.fail(conversation.getId(), assistant.getId(), latency);
-            throw new BizException(mapError(exception.code()), exception.getMessage());
+            ResultCode mappedCode = mapError(exception.code());
+            // 内部鉴权失败属于服务端配置问题，只返回安全提示，不把上游细节暴露给小程序。
+            String clientMessage = mappedCode == ResultCode.AI_INTERNAL_AUTH_FAILED
+                    ? mappedCode.defaultMessage() : exception.getMessage();
+            throw new BizException(mappedCode, clientMessage);
         } catch (BizException exception) {
             throw exception;
         } catch (RuntimeException exception) {
@@ -359,6 +363,7 @@ public List<AiChatVos.MessageVO> recentMessages(String threadId, Integer limit) 
             case 50301 -> ResultCode.VECTOR_UNAVAILABLE;
             case 40903 -> ResultCode.AI_BUSY;
             case 40000 -> ResultCode.BAD_REQUEST;
+            case 40110 -> ResultCode.AI_INTERNAL_AUTH_FAILED;
             default -> ResultCode.AI_UNAVAILABLE;
         };
     }

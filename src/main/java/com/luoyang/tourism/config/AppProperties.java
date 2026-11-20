@@ -1,20 +1,26 @@
 package com.luoyang.tourism.config;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
 /**
  * AppProperties 配置组件。
  * <p>负责基础设施、安全或 Web 相关配置。</p>
  */
 @Data
+@Validated
 @ConfigurationProperties(prefix = "app")
 public class AppProperties {
     private Jwt jwt = new Jwt();
     private Ai ai = new Ai();
+    @Valid
     private Internal internal = new Internal();
     private Oss oss = new Oss();
     private Wechat wechat = new Wechat();
@@ -41,6 +47,12 @@ public class AppProperties {
 
     @Data
     public static class Internal {
+        /**
+         * Java 与 FastAPI 共用的内部 HMAC 密钥。
+         * 真实值只允许放在被 Git 忽略的本地配置或环境变量中。
+         */
+        @NotBlank(message = "app.internal.shared-secret 不能为空")
+        @Size(min = 32, max = 256, message = "app.internal.shared-secret 长度必须为 32-256 个字符")
         private String sharedSecret;
         private long timestampToleranceSeconds = 300;
     }

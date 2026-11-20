@@ -124,6 +124,33 @@ class AiChatServiceTest {
         assertThat(exception.resultCode()).isEqualTo(ResultCode.IDEMPOTENCY_CONFLICT);
     }
 
+    @Test
+    void internalHmacFailureMapsToDedicatedSafeError() {
+        String threadId = UlidCreator.getUlid().toString();
+        String clientId = "client-message-0004";
+        String question = "龙门石窟适合玩多久？";
+        AiConversation conversation = conversation(threadId, 100L);
+        AiMessage user = message(40L, conversation.getId(), 1, "user", question,
+                AiMessageStatus.GROUNDED.code());
+        user.setClientMessageId(clientId);
+        AiMessage assistant = message(41L, conversation.getId(), 2, "assistant", "正在思考…",
+                AiMessageStatus.PROCESSING.code());
+        when(mapper.selectConversationByThreadId(threadId)).thenReturn(conversation);
+        when(mapper.selectUserMessageByClientId(conversation.getId(), clientId)).thenReturn(null);
+        when(persistence.startNew(eq(conversation), eq(100L), eq(question), eq(clientId), anyString()))
+                .thenReturn(new AiChatPersistenceService.PreparedMessages(user, assistant));
+        when(aiClient.chat(any(), anyString()))
+                .thenThrow(new com.luoyang.tourism.integration.ai.AiClientException(
+                        40110, "内部签名校验失败", false));
+
+        BizException exception = catchThrowableOfType(() -> service.chat(100L,
+                new AiChatDtos.ChatRequest(threadId, clientId, question), clientId), BizException.class);
+
+        assertThat(exception.resultCode()).isEqualTo(ResultCode.AI_INTERNAL_AUTH_FAILED);
+        assertThat(exception.getMessage()).isEqualTo("智能问答内部鉴权失败");
+        verify(persistence).fail(eq(conversation.getId()), eq(assistant.getId()), any(Integer.class));
+    }
+
     private AiConversation conversation(String threadId, Long userId) {
         AiConversation conversation = new AiConversation();
         conversation.setId(1L);

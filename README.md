@@ -18,7 +18,7 @@
 - AI：Java 侧会话事实、固定 ULID threadId、Redis 线程锁、幂等、checkpoint 恢复历史、资料不足映射和 Java 内部工具接口。
 - 知识库：文档上传、知识文档版本、索引任务、FastAPI HMAC 提交、定时轮询和删除补偿。
 - 管理端：小程序用户、管理员、角色权限、权限树、系统配置、操作审计、统计仪表盘。
-- 测试：JWT audience/类型隔离、HMAC canonical string、AI 幂等、资料不足、XSS、无物理外键、安全入口、OpenAPI 可用性，共 18 个测试通过。
+- 测试：JWT audience/类型隔离、HMAC canonical string、AI 幂等、资料不足、XSS、无物理外键、安全入口、OpenAPI 可用性；并覆盖公开分类空值与树结构、MyBatis statement、Java/Python HMAC 固定向量、HTTP/1.1 客户端和 `40110` 安全映射。当前共 30 个测试通过，0 失败。
 - 运行冒烟：使用临时 MySQL 8 + 临时 Redis + 真实 OSS，跑通管理员登录、RBAC、分类/标签创建、文件上传、景点创建与发布、小程序登录、收藏、公共详情、推荐、审计日志和仪表盘。
 - 启动冒烟：使用临时 MySQL 8 实例执行完整 Flyway 迁移，Spring Boot 成功启动，/actuator/health 返回 UP。
 - 配置冒烟：使用 local profile、远程 MySQL/Redis 和本地 Git 忽略凭据文件启动成功，/actuator/health 返回 UP。
@@ -284,7 +284,7 @@ server:
 - AI 服务的 Qwen Key 只放 `ai-service`，Spring Boot 不持有 `QWEN_API_KEY`。
 - 针对 AI 服务，Spring Boot 只持有 `AI_SERVICE_BASE_URL` 和 `INTERNAL_SHARED_SECRET`；Qwen Key 不进入 Java 进程。
 - 本机真实凭据位于 Git 忽略的 `springboot/config/application-secret.yml`，凭据清单位于项目根的 `all password/PASSWORDS.md`，两者都不得提交。
-- 不同环境使用不同密钥；轮换密钥必须同时更新 Java 与 Python，并先验证 HMAC 契约测试。
+- 不同环境使用不同密钥；轮换密钥必须同时更新 Java 与 Python，并重启两侧、核对启动日志指纹、执行 HMAC 契约测试。
 - 日志、Swagger 示例和异常响应不得输出变量值。
 
 ## 7. API 与安全约定
@@ -352,6 +352,8 @@ timestamp + "\n" + METHOD + "\n" + pathWithSortedQuery + "\n" + requestId + "\n"
 - 使用常量时间比较。
 - 连接超时 2 秒、读超时 10 秒；重试只用于幂等请求且有上限。
 - `/internal/**` 在 Nginx 层 404，在 Spring Security 层再次校验 HMAC。
+- Java→FastAPI 客户端必须固定 HTTP/1.1，避免 JDK 对 Uvicorn 发起明文 `h2c` Upgrade。
+- 启动时只输出 HMAC 密钥长度和 SHA-256 指纹；两侧指纹不一致时禁止继续联调。
 
 ## 8. 数据库与持久化规则
 
@@ -426,7 +428,7 @@ cd D:\luoyang-smart-tourism\springboot
 | 401 但 Token 看似正确 | `aud`、`token_type`、issuer、公钥、时钟偏差、Redis 黑名单 |
 | 管理端跨域/Cookie 丢失 | Vite `withCredentials`、后端 CORS、Cookie `SameSite/Secure`、HTTPS |
 | Nginx 返回 502 | Spring Boot 是否绑定 `0.0.0.0:8080`、Windows 防火墙、Linux VM 是否能访问 `192.168.100.1:8080` |
-| AI 接口 503 | FastAPI 是否启动、HMAC 是否一致、请求是否超时、Milvus/Redis 是否可用 |
+| AI 接口 503 / 50002 | FastAPI 是否启动、HMAC 指纹是否一致、Java 是否为 HTTP/1.1、请求是否超时、Milvus/Redis 是否可用；上游 `40110` 应为 `50002` 而非通用 `50300` |
 | 数据重复 | 是否有唯一索引、是否实现幂等键、是否在事务外做了“先查后写” |
 | BIGINT 精度错误 | API 是否把 ID 序列化为字符串，前端是否按字符串处理 |
 
