@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -36,7 +35,6 @@ public class AdminFileController {
     private final FileService fileService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('PERM_file:upload')")
     @Operation(summary = "上传文件")
     public ApiResponse<FileVO> upload(@RequestPart("file") MultipartFile file,
                                       @RequestPart("bizScene") String bizScene,
@@ -46,7 +44,6 @@ public class AdminFileController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERM_file:read')")
     @Operation(summary = "文件分页列表")
     public ApiResponse<PageResult<FileVO>> list(
             @RequestParam(required = false) String bizScene,
@@ -57,7 +54,6 @@ public class AdminFileController {
     }
 
     @GetMapping("/{id}/url")
-    @PreAuthorize("hasAuthority('PERM_file:read')")
     @Operation(summary = "获取短时签名 URL")
     public ApiResponse<Map<String, String>> url(@PathVariable Long id,
                                                  @RequestParam(defaultValue = "1800") Integer expiresSeconds) {
@@ -65,7 +61,6 @@ public class AdminFileController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_file:delete')")
     @Operation(summary = "删除未被引用的文件")
     public ApiResponse<Void> delete(@PathVariable Long id) {
         fileService.delete(id);

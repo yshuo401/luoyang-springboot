@@ -12,7 +12,6 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,7 +33,6 @@ public class AdminUserController {
     private final AppUserAdminService service;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERM_system:user:read')")
     @Operation(summary = "小程序用户分页列表")
     public ApiResponse<PageResult<SystemVos.AppUserAdminVO>> list(
             @RequestParam(required = false) String keyword,
@@ -47,14 +45,12 @@ public class AdminUserController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_system:user:read')")
     @Operation(summary = "小程序用户详情")
     public ApiResponse<SystemVos.AppUserAdminVO> detail(@PathVariable Long id) {
         return ApiResponse.success(service.detail(id));
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('PERM_system:user:update')")
     @Operation(summary = "启用或禁用小程序用户")
     public ApiResponse<SystemVos.AppUserAdminVO> status(@PathVariable Long id,
                                                         @Valid @RequestBody SystemDtos.AppUserStatusRequest body) {

@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +37,6 @@ public class AdminSpotController {
     private final AdminSpotService service;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERM_content:spot:read')")
     @Operation(summary = "景点分页列表")
     public ApiResponse<PageResult<ContentVos.AdminSpot>> list(
             @RequestParam(required = false) String keyword,
@@ -50,14 +48,12 @@ public class AdminSpotController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:spot:read')")
     @Operation(summary = "景点详情（含草稿）")
     public ApiResponse<ContentVos.AdminSpot> detail(@PathVariable Long id) {
         return ApiResponse.success(service.detail(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('PERM_content:spot:create')")
     @Operation(summary = "新建景点草稿")
     public ApiResponse<ContentVos.AdminSpot> create(@Valid @RequestBody ContentDtos.SpotUpsertRequest request,
                                                      @AuthenticationPrincipal Jwt jwt) {
@@ -65,7 +61,6 @@ public class AdminSpotController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:spot:update')")
     @Operation(summary = "更新景点")
     public ApiResponse<ContentVos.AdminSpot> update(@PathVariable Long id,
                                                      @Valid @RequestBody ContentDtos.SpotUpsertRequest request,
@@ -74,7 +69,6 @@ public class AdminSpotController {
     }
 
     @PostMapping("/{id}/publish")
-    @PreAuthorize("hasAuthority('PERM_content:spot:publish')")
     @Operation(summary = "发布景点")
     public ApiResponse<ContentVos.AdminSpot> publish(@PathVariable Long id,
                                                       @RequestParam("version") Integer version,
@@ -83,7 +77,6 @@ public class AdminSpotController {
     }
 
     @PostMapping("/{id}/unpublish")
-    @PreAuthorize("hasAuthority('PERM_content:spot:publish')")
     @Operation(summary = "下架景点")
     public ApiResponse<ContentVos.AdminSpot> unpublish(@PathVariable Long id,
                                                         @RequestParam("version") Integer version,
@@ -92,7 +85,6 @@ public class AdminSpotController {
     }
 
     @PatchMapping("/{id}/weight")
-    @PreAuthorize("hasAuthority('PERM_content:spot:update')")
     @Operation(summary = "调整推荐运营权重")
     public ApiResponse<ContentVos.AdminSpot> weight(@PathVariable Long id,
                                                      @Valid @RequestBody ContentDtos.WeightRequest request,
@@ -101,7 +93,6 @@ public class AdminSpotController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:spot:delete')")
     @Operation(summary = "软删除景点")
     public ApiResponse<Void> delete(@PathVariable Long id,
                                     @RequestParam("version") Integer version,

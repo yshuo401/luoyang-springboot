@@ -6,17 +6,13 @@ spring:
     driver-class-name: org.h2.Driver
   flyway:
     enabled: false
-  data:
-    redis:
-      host: 127.0.0.1
-      port: 6379
 
 app:
   jwt:
     app-secret: test-app-jwt-secret-at-least-thirty-two-bytes
     admin-secret: test-admin-jwt-secret-at-least-thirty-two-bytes
   internal:
-    shared-secret: test-internal-hmac-secret-at-least-thirty-two-bytes
+    token: test-internal-token
   bootstrap-admin:
     enabled: false
   wechat:

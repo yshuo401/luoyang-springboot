@@ -18,7 +18,6 @@ class JwtServiceTest {
     private JwtService jwtService;
     private JwtDecoder appAccessDecoder;
     private JwtDecoder adminAccessDecoder;
-    private JwtDecoder appRefreshDecoder;
 
     @BeforeEach
     void setUp() {
@@ -31,43 +30,25 @@ class JwtServiceTest {
         JwtEncoder adminEncoder = config.adminJwtEncoder(properties);
         appAccessDecoder = config.appAccessJwtDecoder(properties);
         adminAccessDecoder = config.adminAccessJwtDecoder(properties);
-        appRefreshDecoder = config.appRefreshJwtDecoder(properties);
-        jwtService = config.jwtService(properties, appEncoder, adminEncoder,
-                appRefreshDecoder, config.adminRefreshJwtDecoder(properties));
+        jwtService = config.jwtService(properties, appEncoder, adminEncoder);
     }
 
     @Test
     void appAccessTokenHasCorrectAudienceAndRoles() {
-        String token = jwtService.issueAccessToken(TokenAudience.APP_USER, 10001L, "tourist", 3,
+        String token = jwtService.issueAccessToken(TokenAudience.APP_USER, 10001L, "tourist",
                 Set.of("APP_USER"), Set.of());
         Jwt jwt = appAccessDecoder.decode(token);
         assertThat(jwt.getSubject()).isEqualTo("10001");
         assertThat(jwt.getAudience()).containsExactly("user-wx");
         assertThat(jwt.getClaimAsString("token_type")).isEqualTo("access");
         assertThat(jwt.getClaimAsStringList("roles")).containsExactly("APP_USER");
-        assertThat(((Number) jwt.getClaim("token_version")).intValue()).isEqualTo(3);
     }
 
     @Test
     void adminAccessTokenCannotBeUsedByAppDecoder() {
-        String token = jwtService.issueAccessToken(TokenAudience.ADMIN, 1L, "admin", 0,
-                Set.of("ADMIN"), Set.of("dashboard:read"));
+        String token = jwtService.issueAccessToken(TokenAudience.ADMIN, 1L, "admin",
+                Set.of("ADMIN"), Set.of());
         assertThat(adminAccessDecoder.decode(token).getAudience()).containsExactly("admin-web");
         assertThatThrownBy(() -> appAccessDecoder.decode(token)).isInstanceOf(JwtException.class);
-    }
-
-    @Test
-    void refreshTokenCannotBeUsedAsAccessToken() {
-        String refresh = jwtService.issueRefreshToken(TokenAudience.APP_USER, 10001L, "tourist", 0);
-        assertThat(jwtService.decodeRefreshToken(refresh, TokenAudience.APP_USER).getId()).isNotBlank();
-        assertThatThrownBy(() -> appAccessDecoder.decode(refresh)).isInstanceOf(JwtException.class);
-    }
-
-    @Test
-    void accessTokenCannotBeUsedAsRefreshToken() {
-        String access = jwtService.issueAccessToken(TokenAudience.APP_USER, 10001L, "tourist", 0,
-                Set.of("APP_USER"), Set.of());
-        assertThatThrownBy(() -> jwtService.decodeRefreshToken(access, TokenAudience.APP_USER))
-                .isInstanceOf(RuntimeException.class);
     }
 }

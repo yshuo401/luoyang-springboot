@@ -14,7 +14,6 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,7 +41,6 @@ public class AdminKnowledgeController {
     private final KnowledgeService service;
 
     @GetMapping("/documents")
-    @PreAuthorize("hasAuthority('PERM_knowledge:read')")
     @Operation(summary = "知识文档分页列表")
     public ApiResponse<PageResult<KnowledgeVos.DocumentVO>> documents(
             @RequestParam(required = false) String keyword,
@@ -53,14 +51,12 @@ public class AdminKnowledgeController {
     }
 
     @GetMapping("/documents/{id}")
-    @PreAuthorize("hasAuthority('PERM_knowledge:read')")
     @Operation(summary = "知识文档详情")
     public ApiResponse<KnowledgeVos.DocumentVO> document(@PathVariable Long id) {
         return ApiResponse.success(service.document(id));
     }
 
     @PostMapping("/documents")
-    @PreAuthorize("hasAuthority('PERM_knowledge:upload') and hasAuthority('PERM_knowledge:index')")
     @Operation(summary = "上传文档并提交索引任务")
     public ApiResponse<KnowledgeVos.UploadResult> upload(
             @RequestPart("file") MultipartFile file,
@@ -74,7 +70,6 @@ public class AdminKnowledgeController {
     }
 
     @PostMapping("/documents/{id}/reindex")
-    @PreAuthorize("hasAuthority('PERM_knowledge:index')")
     @Operation(summary = "重新索引文档")
     public ApiResponse<KnowledgeVos.UploadResult> reindex(
             @PathVariable Long id,
@@ -84,7 +79,6 @@ public class AdminKnowledgeController {
     }
 
     @PatchMapping("/documents/{id}/status")
-    @PreAuthorize("hasAuthority('PERM_knowledge:update')")
     @Operation(summary = "启用、禁用或归档知识文档")
     public ApiResponse<KnowledgeVos.DocumentVO> status(
             @PathVariable Long id,
@@ -94,7 +88,6 @@ public class AdminKnowledgeController {
     }
 
     @DeleteMapping("/documents/{id}")
-    @PreAuthorize("hasAuthority('PERM_knowledge:delete')")
     @Operation(summary = "删除文档与向量")
     public ApiResponse<Void> delete(@PathVariable Long id,
                                     @RequestParam("version") Integer version,
@@ -104,7 +97,6 @@ public class AdminKnowledgeController {
     }
 
     @GetMapping("/jobs")
-    @PreAuthorize("hasAuthority('PERM_knowledge:read')")
     @Operation(summary = "索引任务分页列表")
     public ApiResponse<PageResult<KnowledgeVos.JobVO>> jobs(
             @RequestParam(required = false) Long documentId,
@@ -115,7 +107,6 @@ public class AdminKnowledgeController {
     }
 
     @GetMapping("/jobs/{jobId}")
-    @PreAuthorize("hasAuthority('PERM_knowledge:read')")
     @Operation(summary = "索引任务详情")
     public ApiResponse<KnowledgeVos.JobVO> job(@PathVariable Long jobId) {
         return ApiResponse.success(service.job(jobId));

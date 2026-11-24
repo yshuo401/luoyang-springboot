@@ -27,8 +27,8 @@ import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
 /**
- * JwtConfig 安全组件。
- * <p>负责 JWT、权限、限流或请求安全校验。</p>
+ * JWT 配置。
+ * <p>只保留 App/Admin 两类 Access Token，两者通过 audience 隔离。</p>
  */
 @Configuration
 public class JwtConfig {
@@ -45,22 +45,12 @@ public class JwtConfig {
 
     @Bean("appAccessJwtDecoder")
     public JwtDecoder appAccessJwtDecoder(AppProperties properties) {
-        return decoder(properties, properties.getJwt().getAppSecret(), TokenAudience.APP_USER, TokenType.ACCESS);
+        return decoder(properties, properties.getJwt().getAppSecret(), TokenAudience.APP_USER);
     }
 
     @Bean("adminAccessJwtDecoder")
     public JwtDecoder adminAccessJwtDecoder(AppProperties properties) {
-        return decoder(properties, properties.getJwt().getAdminSecret(), TokenAudience.ADMIN, TokenType.ACCESS);
-    }
-
-    @Bean("appRefreshJwtDecoder")
-    public JwtDecoder appRefreshJwtDecoder(AppProperties properties) {
-        return decoder(properties, properties.getJwt().getAppSecret(), TokenAudience.APP_USER, TokenType.REFRESH);
-    }
-
-    @Bean("adminRefreshJwtDecoder")
-    public JwtDecoder adminRefreshJwtDecoder(AppProperties properties) {
-        return decoder(properties, properties.getJwt().getAdminSecret(), TokenAudience.ADMIN, TokenType.REFRESH);
+        return decoder(properties, properties.getJwt().getAdminSecret(), TokenAudience.ADMIN);
     }
 
     @Bean
@@ -73,10 +63,8 @@ public class JwtConfig {
     @Bean
     public JwtService jwtService(AppProperties properties,
                                  JwtEncoder appJwtEncoder,
-                                 JwtEncoder adminJwtEncoder,
-                                 @Qualifier("appRefreshJwtDecoder") JwtDecoder appRefreshDecoder,
-                                 @Qualifier("adminRefreshJwtDecoder") JwtDecoder adminRefreshDecoder) {
-        return new JwtService(properties, appJwtEncoder, adminJwtEncoder, appRefreshDecoder, adminRefreshDecoder);
+                                 JwtEncoder adminJwtEncoder) {
+        return new JwtService(properties, appJwtEncoder, adminJwtEncoder);
     }
 
     private JwtEncoder encoder(SecretKey key) {
@@ -85,18 +73,14 @@ public class JwtConfig {
         return new NimbusJwtEncoder(source);
     }
 
-    private JwtDecoder decoder(AppProperties properties, String secret, TokenAudience audience, TokenType type) {
+    private JwtDecoder decoder(AppProperties properties, String secret, TokenAudience audience) {
         SecretKey key = key(secret, audience == TokenAudience.APP_USER ? "JWT_APP_SECRET" : "JWT_ADMIN_SECRET");
         NimbusJwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
-        // audience 与 token_type 双重校验，禁止 App/Admin 和 Access/Refresh 互相串用。
         OAuth2TokenValidator<Jwt> audienceValidator = new JwtClaimValidator<List<String>>("aud",
                 values -> values != null && values.contains(audience.value()));
-        OAuth2TokenValidator<Jwt> typeValidator = new JwtClaimValidator<String>("token_type",
-                value -> type.name().toLowerCase().equals(value));
         decoder.setJwtValidator(new DelegatingOAuth2TokenValidator<>(
                 JwtValidators.createDefaultWithIssuer(properties.getJwt().getIssuer()),
-                audienceValidator,
-                typeValidator));
+                audienceValidator));
         return decoder;
     }
 

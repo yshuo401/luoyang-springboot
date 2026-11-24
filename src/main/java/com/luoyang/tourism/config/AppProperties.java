@@ -11,8 +11,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 /**
- * AppProperties 配置组件。
- * <p>负责基础设施、安全或 Web 相关配置。</p>
+ * AppProperties 应用配置。
+ * <p>毕业设计版本只保留运行所必需的配置项。</p>
  */
 @Data
 @Validated
@@ -32,29 +32,23 @@ public class AppProperties {
         private String issuer = "luoyang-tourism";
         private String appSecret;
         private String adminSecret;
-        private Duration appAccessTtl = Duration.ofHours(2);
-        private Duration appRefreshTtl = Duration.ofDays(30);
-        private Duration adminAccessTtl = Duration.ofMinutes(30);
-        private Duration adminRefreshTtl = Duration.ofDays(7);
+        private Duration appAccessTtl = Duration.ofDays(7);
+        private Duration adminAccessTtl = Duration.ofDays(1);
     }
 
     @Data
     public static class Ai {
         private String baseUrl = "http://127.0.0.1:8000";
         private Duration connectTimeout = Duration.ofSeconds(2);
-        private Duration readTimeout = Duration.ofSeconds(28);
+        private Duration readTimeout = Duration.ofSeconds(60);
     }
 
     @Data
     public static class Internal {
-        /**
-         * Java 与 FastAPI 共用的内部 HMAC 密钥。
-         * 真实值只允许放在被 Git 忽略的本地配置或环境变量中。
-         */
-        @NotBlank(message = "app.internal.shared-secret 不能为空")
-        @Size(min = 32, max = 256, message = "app.internal.shared-secret 长度必须为 32-256 个字符")
-        private String sharedSecret;
-        private long timestampToleranceSeconds = 300;
+        /** FastAPI 与 Spring Boot 共用的简单内部调用令牌。 */
+        @NotBlank(message = "app.internal.token 不能为空")
+        @Size(min = 8, max = 256, message = "app.internal.token 长度必须为 8-256 个字符")
+        private String token;
     }
 
     @Data

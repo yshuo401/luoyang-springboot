@@ -4,14 +4,12 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import java.util.List;
 
 /**
- * SystemDtos 数据传输对象，用于接口请求参数和内部契约。
+ * 后台用户请求参数。
  */
 public final class SystemDtos {
     private SystemDtos() {
@@ -28,8 +26,7 @@ public final class SystemDtos {
             @NotBlank @Size(min = 8, max = 128)
             @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d).+$", message = "密码必须同时包含字母和数字")
             String password,
-            @NotBlank @Size(max = 64) String nickname,
-            @NotEmpty @Size(max = 20) List<Long> roleIds
+            @NotBlank @Size(max = 64) String nickname
     ) {
     }
 
@@ -38,7 +35,6 @@ public final class SystemDtos {
             @Email @Size(max = 128) String email,
             @Size(max = 32) String phone,
             Long avatarFileId,
-            @NotEmpty @Size(max = 20) List<Long> roleIds,
             @NotNull Integer version
     ) {
     }
@@ -54,30 +50,6 @@ public final class SystemDtos {
     public record AdminStatusRequest(
             @NotNull @Min(0) @Max(1) Integer status,
             @Size(max = 255) String reason,
-            @NotNull Integer version
-    ) {
-    }
-
-    public record RoleUpsertRequest(
-            @NotBlank @Size(max = 64) String name,
-            @NotBlank @Size(max = 64) String code,
-            @Size(max = 255) String description,
-            @NotNull @Min(0) @Max(1) Integer status,
-            Integer sortOrder,
-            Integer version
-    ) {
-    }
-
-    public record RolePermissionRequest(
-            @NotNull @Size(max = 200) List<Long> permissionIds,
-            @NotNull Integer version
-    ) {
-    }
-
-    public record ConfigUpdateRequest(
-            @NotBlank String configValue,
-            @NotBlank @Size(max = 16) String valueType,
-            @Size(max = 500) String description,
             @NotNull Integer version
     ) {
     }

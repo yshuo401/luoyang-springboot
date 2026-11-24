@@ -35,7 +35,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileServiceImpl implements FileService {
     private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpg", "jpeg", "png", "webp", "gif");
     private static final Set<String> DOCUMENT_EXTENSIONS = Set.of("pdf", "docx", "md", "txt");
-    private static final Set<String> SCENES = Set.of("SPOT", "GUIDE", "FOOD", "BANNER", "AVATAR", "KNOWLEDGE");
+    // 同时兼容后端历史场景码和管理端当前使用的业务场景码，避免前端升级导致上传接口断裂。
+    private static final Set<String> SCENES = Set.of(
+            "SPOT", "GUIDE", "FOOD", "BANNER", "AVATAR", "KNOWLEDGE",
+            "ADMIN_UPLOAD", "SCENIC_SPOT", "SCENIC_CATEGORY", "TRAVEL_GUIDE",
+            "FOOD_CATEGORY", "HOME_BANNER", "RICH_TEXT", "ADMIN_AVATAR");
 
     private final FileMapper fileMapper;
     private final FileUrlService fileUrlService;
@@ -152,7 +156,7 @@ public void delete(Long id) {
                 file.getFileSize(), file.getStatus(), fileUrlService.signedUrl(file));
     }
 
-    private String normalizeScene(String scene) {
+    static String normalizeScene(String scene) {
         String value = scene == null ? "" : scene.trim().toUpperCase(Locale.ROOT);
         if (!SCENES.contains(value)) {
             throw new BizException(ResultCode.BAD_REQUEST, "不支持的文件业务场景");

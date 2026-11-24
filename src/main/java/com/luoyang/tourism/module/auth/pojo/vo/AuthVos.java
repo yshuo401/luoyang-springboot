@@ -4,7 +4,7 @@ import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
- * AuthVos 视图对象，用于接口响应展示。
+ * 认证接口响应模型。
  */
 public final class AuthVos {
     private AuthVos() {
@@ -14,7 +14,7 @@ public final class AuthVos {
                             OffsetDateTime createdAt) {
     }
 
-    public record AppLoginVO(String accessToken, String refreshToken, long expiresIn, AppUserVO user) {
+    public record AppLoginVO(String accessToken, long expiresIn, AppUserVO user) {
     }
 
     public record AdminProfileVO(String id, String username, String nickname, String avatarUrl,

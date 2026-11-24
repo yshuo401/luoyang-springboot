@@ -21,16 +21,14 @@ import com.luoyang.tourism.module.aichat.pojo.vo.AiChatVos;
 import com.luoyang.tourism.module.aichat.service.AiChatPersistenceService;
 import com.luoyang.tourism.module.aichat.service.AiChatService;
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 /**
@@ -41,15 +39,11 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class AiChatServiceImpl implements AiChatService {
-    private static final Duration THREAD_LOCK_TTL = Duration.ofSeconds(45);
-    private static final DefaultRedisScript<Long> RELEASE_LOCK = new DefaultRedisScript<>(
-            "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
-            Long.class);
+    private final Set<String> activeThreads = ConcurrentHashMap.newKeySet();
 
     private final AiChatMapper mapper;
     private final AiChatPersistenceService persistence;
     private final AiClient aiClient;
-    private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
 
 @Override
@@ -122,8 +116,8 @@ public AiChatVos.ChatVO chat(Long userId, AiChatDtos.ChatRequest request, String
         }
         String traceId = TraceIds.current();
         // 同一个 thread 只允许一个请求生成回答，避免并发请求覆盖 checkpointer 状态。
-        String lockKey = "tourism:spring:ai:thread:" + conversation.getThreadId() + ":lock";
-        if (!acquireLock(lockKey, traceId)) {
+        String lockKey = conversation.getThreadId();
+        if (!acquireLock(lockKey)) {
             throw new BizException(ResultCode.AI_BUSY);
         }
         long startedAt = System.currentTimeMillis();
@@ -155,7 +149,7 @@ public AiChatVos.ChatVO chat(Long userId, AiChatDtos.ChatRequest request, String
             return invokeAndComplete(conversation, prepared.userMessage(), prepared.assistantMessage(),
                     content, request.clientMessageId(), traceId, startedAt);
         } finally {
-            releaseLock(lockKey, traceId);
+            releaseLock(lockKey);
         }
     }
 
@@ -241,21 +235,12 @@ public List<AiChatVos.MessageVO> recentMessages(String threadId, Integer limit) 
         return conversation;
     }
 
-    private boolean acquireLock(String key, String value) {
-        try {
-            Boolean acquired = redisTemplate.opsForValue().setIfAbsent(key, value, THREAD_LOCK_TTL);
-            return Boolean.TRUE.equals(acquired);
-        } catch (RuntimeException exception) {
-            throw new BizException(ResultCode.AI_UNAVAILABLE);
-        }
+    private boolean acquireLock(String threadId) {
+        return activeThreads.add(threadId);
     }
 
-    private void releaseLock(String key, String value) {
-        try {
-            redisTemplate.execute(RELEASE_LOCK, List.of(key), value);
-        } catch (RuntimeException ignored) {
-            // Lock expires automatically.
-        }
+    private void releaseLock(String threadId) {
+        activeThreads.remove(threadId);
     }
 
     private List<AiDtos.RecoveryMessage> recoveryHistory(Long conversationId, int currentSequence) {

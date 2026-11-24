@@ -27,7 +27,9 @@ public interface KnowledgeMapper {
     int softDeleteDocument(@Param("id") Long id, @Param("version") Integer version,
                            @Param("updatedBy") Long updatedBy);
     int hardDeleteChunks(@Param("documentId") Long documentId);
-    int insertChunk(KnowledgeChunk chunk);
+    int upsertChunk(KnowledgeChunk chunk);
+    int deleteChunksAtOrAfter(@Param("documentId") Long documentId,
+                              @Param("chunkIndex") Integer chunkIndex);
 
     int insertJob(AiIndexJob job);
     AiIndexJob selectJob(@Param("id") Long id);

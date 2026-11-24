@@ -1,6 +1,7 @@
 package com.luoyang.tourism.module.knowledge.service;
 
 import com.luoyang.tourism.integration.ai.AiDtos;
+import com.luoyang.tourism.module.knowledge.pojo.dto.KnowledgeDtos;
 import com.luoyang.tourism.module.knowledge.pojo.entity.AiIndexJob;
 import com.luoyang.tourism.module.knowledge.pojo.entity.KnowledgeDocument;
 
@@ -27,6 +28,9 @@ public interface KnowledgePersistenceService {
 
     /** 执行 deleteDocument 业务操作。 */
     public void deleteDocument(KnowledgeDocument document, Long adminId);
+
+    /** 幂等写入 FastAPI 回调的知识分片元数据。 */
+    public KnowledgeDtos.ChunkBatchResult upsertChunks(KnowledgeDtos.ChunkBatchRequest request);
 
     public record Created(KnowledgeDocument document, AiIndexJob job) {
     }

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!-- 管理员、角色、配置、审计和仪表盘数据访问。禁止在 XML 中拼接用户可控 SQL。 -->
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.luoyang.tourism.module.system.mapper.SystemMapper">
     <select id="selectAppUsers" resultType="com.luoyang.tourism.module.auth.pojo.entity.AppUser">
@@ -37,17 +36,13 @@
         </if>
         <if test="status != null"> AND status=#{status} </if>
     </select>
-    <select id="selectRoleIdsByAdminId" resultType="long">
-        SELECT role_id FROM admin_user_role WHERE user_id=#{adminId}
-    </select>
     <update id="updateAdminProfile">
         UPDATE admin_user SET nickname=#{nickname}, email=#{email}, phone=#{phone},
             avatar_file_id=#{avatarFileId}, updated_by=#{updatedBy}, version=version+1
         WHERE id=#{id} AND version=#{version} AND is_deleted=0
     </update>
     <update id="updateAdminStatus">
-        UPDATE admin_user SET status=#{status}, updated_by=#{updatedBy},
-            token_version=IF(#{status}=0, token_version+1, token_version), version=version+1
+        UPDATE admin_user SET status=#{status}, updated_by=#{updatedBy}, version=version+1
         WHERE id=#{id} AND version=#{version} AND is_deleted=0
     </update>
     <update id="resetAdminPassword">
@@ -56,127 +51,6 @@
             version=version+1
         WHERE id=#{id} AND is_deleted=0
     </update>
-    <delete id="deleteAdminRoles">DELETE FROM admin_user_role WHERE user_id=#{adminId}</delete>
-    <select id="countAdminsWithPermissionExcluding" resultType="int">
-        SELECT COUNT(DISTINCT u.id)
-        FROM admin_user u
-        JOIN admin_user_role ur ON ur.user_id=u.id
-        JOIN admin_role r ON r.id=ur.role_id AND r.status=1 AND r.is_deleted=0
-        JOIN admin_role_permission rp ON rp.role_id=r.id
-        JOIN admin_permission p ON p.id=rp.permission_id AND p.status=1 AND p.is_deleted=0
-        WHERE u.status=1 AND u.is_deleted=0 AND p.permission_code=#{permissionCode}
-        <if test="excludeId != null"> AND u.id != #{excludeId} </if>
-    </select>
-
-    <select id="selectRoles" resultType="com.luoyang.tourism.module.auth.pojo.entity.AdminRole">
-        SELECT * FROM admin_role WHERE is_deleted=0
-        <if test="keyword != null and keyword != ''">
-            AND (name LIKE CONCAT('%', #{keyword}, '%') OR code LIKE CONCAT('%', #{keyword}, '%'))
-        </if>
-        <if test="status != null"> AND status=#{status} </if>
-        ORDER BY sort_order, id
-    </select>
-    <select id="selectRole" resultType="com.luoyang.tourism.module.auth.pojo.entity.AdminRole">
-        SELECT * FROM admin_role WHERE id=#{id} AND is_deleted=0
-    </select>
-    <insert id="insertRole" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO admin_role (name, code, description, status, sort_order, created_by, updated_by)
-        VALUES (#{name}, #{code}, #{description}, #{status}, #{sortOrder}, #{createdBy}, #{updatedBy})
-    </insert>
-    <update id="updateRole">
-        UPDATE admin_role SET name=#{name}, code=#{code}, description=#{description},
-            status=#{status}, sort_order=#{sortOrder}, updated_by=#{updatedBy}, version=version+1
-        WHERE id=#{id} AND version=#{version} AND is_deleted=0
-    </update>
-    <update id="softDeleteRole">
-        UPDATE admin_role SET is_deleted=1, updated_by=#{updatedBy}, version=version+1
-        WHERE id=#{id} AND version=#{version} AND is_deleted=0
-    </update>
-    <select id="countRoleUsage" resultType="int">
-        SELECT COUNT(*) FROM admin_user_role WHERE role_id=#{roleId}
-    </select>
-    <select id="countRoleCode" resultType="int">
-        SELECT COUNT(*) FROM admin_role WHERE code=#{code} AND is_deleted=0
-        <if test="excludeId != null"> AND id != #{excludeId} </if>
-    </select>
-    <select id="selectPermissions" resultType="com.luoyang.tourism.module.auth.pojo.entity.AdminPermission">
-        SELECT * FROM admin_permission WHERE status=1 AND is_deleted=0 ORDER BY sort_order, id
-    </select>
-    <select id="selectPermissionIdsByRole" resultType="long">
-        SELECT permission_id FROM admin_role_permission WHERE role_id=#{roleId}
-    </select>
-    <delete id="deleteRolePermissions">DELETE FROM admin_role_permission WHERE role_id=#{roleId}</delete>
-    <insert id="insertRolePermission">
-        INSERT INTO admin_role_permission (role_id, permission_id, created_by)
-        VALUES (#{roleId}, #{permissionId}, #{createdBy})
-    </insert>
-    <select id="countPermissionsByIds" resultType="int">
-        SELECT COUNT(*) FROM admin_permission WHERE is_deleted=0 AND id IN
-        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
-    </select>
-
-    <update id="incrementTokenVersionForRoleUsers">
-        UPDATE admin_user u JOIN admin_user_role ur ON ur.user_id=u.id
-        SET u.token_version=u.token_version+1, u.version=u.version+1
-        WHERE ur.role_id=#{roleId} AND u.is_deleted=0
-    </update>
-
-    <select id="selectConfigs" resultType="com.luoyang.tourism.module.system.pojo.entity.SystemConfig">
-        SELECT * FROM system_config WHERE is_deleted=0
-        <if test="keyword != null and keyword != ''">
-            AND (config_key LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%'))
-        </if>
-        ORDER BY id DESC LIMIT #{offset}, #{limit}
-    </select>
-    <select id="countConfigs" resultType="long">
-        SELECT COUNT(*) FROM system_config WHERE is_deleted=0
-        <if test="keyword != null and keyword != ''">
-            AND (config_key LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%'))
-        </if>
-    </select>
-    <select id="selectConfig" resultType="com.luoyang.tourism.module.system.pojo.entity.SystemConfig">
-        SELECT * FROM system_config WHERE config_key=#{key} AND is_deleted=0
-    </select>
-    <insert id="insertConfig" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO system_config (config_key, config_value, value_type, description, is_sensitive,
-            status, created_by, updated_by)
-        VALUES (#{configKey}, #{configValue}, #{valueType}, #{description}, 0, #{status}, #{createdBy}, #{updatedBy})
-    </insert>
-    <update id="updateConfig">
-        UPDATE system_config SET config_value=#{configValue}, value_type=#{valueType},
-            description=#{description}, updated_by=#{updatedBy}, version=version+1
-        WHERE id=#{id} AND version=#{version} AND is_deleted=0 AND is_sensitive=0
-    </update>
-
-    <insert id="insertOperationLog" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO admin_operation_log
-        (admin_user_id, username_snapshot, module, operation_type, http_method, request_uri,
-         request_params, response_code, success, ip, user_agent, trace_id, duration_ms)
-        VALUES (#{adminUserId}, #{usernameSnapshot}, #{module}, #{operationType}, #{httpMethod},
-                #{requestUri}, #{requestParams}, #{responseCode}, #{success}, #{ip}, #{userAgent},
-                #{traceId}, #{durationMs})
-    </insert>
-    <select id="selectOperationLogs" resultType="com.luoyang.tourism.module.system.pojo.entity.AdminOperationLog">
-        SELECT * FROM admin_operation_log
-        <where>
-            <if test="adminId != null"> AND admin_user_id=#{adminId} </if>
-            <if test="module != null and module != ''"> AND module=#{module} </if>
-            <if test="success != null"> AND success=#{success} </if>
-            <if test="from != null"> AND created_at &gt;= #{from} </if>
-            <if test="to != null"> AND created_at &lt;= #{to} </if>
-        </where>
-        ORDER BY id DESC LIMIT #{offset}, #{limit}
-    </select>
-    <select id="countOperationLogs" resultType="long">
-        SELECT COUNT(*) FROM admin_operation_log
-        <where>
-            <if test="adminId != null"> AND admin_user_id=#{adminId} </if>
-            <if test="module != null and module != ''"> AND module=#{module} </if>
-            <if test="success != null"> AND success=#{success} </if>
-            <if test="from != null"> AND created_at &gt;= #{from} </if>
-            <if test="to != null"> AND created_at &lt;= #{to} </if>
-        </where>
-    </select>
 
     <select id="countSpotTotal" resultType="long">SELECT COUNT(*) FROM scenic_spot WHERE is_deleted=0</select>
     <select id="countSpotPublished" resultType="long">SELECT COUNT(*) FROM scenic_spot WHERE status=1 AND is_deleted=0</select>

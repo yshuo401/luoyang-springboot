@@ -32,9 +32,9 @@ class SecurityContractTest {
     }
 
     @Test
-    void internalApiRequiresHmac() throws Exception {
+    void internalApiRequiresToken() throws Exception {
         mockMvc.perform(get("/internal/v1/ai/spots/1"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value(40110));
+                .andExpect(jsonPath("$.code").value(40100));
     }
 }

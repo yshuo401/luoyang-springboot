@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,7 +38,6 @@ public class AdminTaxonomyController {
     private final AdminTaxonomyService service;
 
     @GetMapping("/categories")
-    @PreAuthorize("hasAuthority('PERM_content:category:read')")
     @Operation(summary = "分类列表")
     public ApiResponse<List<ContentVos.AdminCategory>> categories(
             @RequestParam(required = false) String keyword,
@@ -48,14 +46,12 @@ public class AdminTaxonomyController {
     }
 
     @GetMapping("/categories/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:category:read')")
     @Operation(summary = "分类详情")
     public ApiResponse<ContentVos.AdminCategory> category(@PathVariable Long id) {
         return ApiResponse.success(service.category(id));
     }
 
     @PostMapping("/categories")
-    @PreAuthorize("hasAuthority('PERM_content:category:create')")
     @Operation(summary = "新建分类")
     public ApiResponse<ContentVos.AdminCategory> createCategory(
             @Valid @RequestBody ContentDtos.CategoryUpsertRequest request,
@@ -64,7 +60,6 @@ public class AdminTaxonomyController {
     }
 
     @PutMapping("/categories/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:category:update')")
     @Operation(summary = "更新分类")
     public ApiResponse<ContentVos.AdminCategory> updateCategory(
             @PathVariable Long id,
@@ -74,7 +69,6 @@ public class AdminTaxonomyController {
     }
 
     @PatchMapping("/categories/{id}/status")
-    @PreAuthorize("hasAuthority('PERM_content:category:update')")
     @Operation(summary = "启用或禁用分类")
     public ApiResponse<ContentVos.AdminCategory> updateCategoryStatus(
             @PathVariable Long id,
@@ -84,7 +78,6 @@ public class AdminTaxonomyController {
     }
 
     @DeleteMapping("/categories/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:category:delete')")
     @Operation(summary = "删除分类")
     public ApiResponse<Void> deleteCategory(@PathVariable Long id,
                                             @RequestParam("version") Integer version,
@@ -94,7 +87,6 @@ public class AdminTaxonomyController {
     }
 
     @GetMapping("/tags")
-    @PreAuthorize("hasAuthority('PERM_content:tag:read')")
     @Operation(summary = "标签分页列表")
     public ApiResponse<PageResult<ContentVos.AdminTag>> tags(
             @RequestParam(required = false) Integer tagType,
@@ -106,7 +98,6 @@ public class AdminTaxonomyController {
     }
 
     @PostMapping("/tags")
-    @PreAuthorize("hasAuthority('PERM_content:tag:create')")
     @Operation(summary = "新建标签")
     public ApiResponse<ContentVos.AdminTag> createTag(
             @Valid @RequestBody ContentDtos.TagUpsertRequest request,
@@ -115,7 +106,6 @@ public class AdminTaxonomyController {
     }
 
     @PutMapping("/tags/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:tag:update')")
     @Operation(summary = "更新标签")
     public ApiResponse<ContentVos.AdminTag> updateTag(
             @PathVariable Long id,
@@ -125,7 +115,6 @@ public class AdminTaxonomyController {
     }
 
     @PatchMapping("/tags/{id}/status")
-    @PreAuthorize("hasAuthority('PERM_content:tag:update')")
     @Operation(summary = "启用或禁用标签")
     public ApiResponse<ContentVos.AdminTag> updateTagStatus(
             @PathVariable Long id,
@@ -135,7 +124,6 @@ public class AdminTaxonomyController {
     }
 
     @DeleteMapping("/tags/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:tag:delete')")
     @Operation(summary = "删除标签")
     public ApiResponse<Void> deleteTag(@PathVariable Long id,
                                        @RequestParam("version") Integer version,
@@ -145,7 +133,6 @@ public class AdminTaxonomyController {
     }
 
     @GetMapping("/food-categories")
-    @PreAuthorize("hasAuthority('PERM_content:food-category:read')")
     @Operation(summary = "美食分类列表")
     public ApiResponse<List<ContentVos.AdminFoodCategory>> foodCategories(
             @RequestParam(required = false) Integer status) {
@@ -153,7 +140,6 @@ public class AdminTaxonomyController {
     }
 
     @PostMapping("/food-categories")
-    @PreAuthorize("hasAuthority('PERM_content:food-category:create')")
     @Operation(summary = "新建美食分类")
     public ApiResponse<ContentVos.AdminFoodCategory> createFoodCategory(
             @Valid @RequestBody ContentDtos.FoodCategoryUpsertRequest request,
@@ -162,7 +148,6 @@ public class AdminTaxonomyController {
     }
 
     @PutMapping("/food-categories/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:food-category:update')")
     @Operation(summary = "更新美食分类")
     public ApiResponse<ContentVos.AdminFoodCategory> updateFoodCategory(
             @PathVariable Long id,
@@ -172,7 +157,6 @@ public class AdminTaxonomyController {
     }
 
     @PatchMapping("/food-categories/{id}/status")
-    @PreAuthorize("hasAuthority('PERM_content:food-category:update')")
     @Operation(summary = "启用或禁用美食分类")
     public ApiResponse<ContentVos.AdminFoodCategory> updateFoodCategoryStatus(
             @PathVariable Long id,
@@ -182,7 +166,6 @@ public class AdminTaxonomyController {
     }
 
     @DeleteMapping("/food-categories/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:food-category:delete')")
     @Operation(summary = "删除美食分类")
     public ApiResponse<Void> deleteFoodCategory(@PathVariable Long id,
                                                 @RequestParam("version") Integer version,

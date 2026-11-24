@@ -2,11 +2,6 @@ spring:
   datasource:
     url: jdbc:mysql://${MYSQL_HOST:192.168.100.128}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:luoyang_tourism}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&rewriteBatchedStatements=true
     username: ${MYSQL_USERNAME:root}
-  data:
-    redis:
-      host: ${REDIS_HOST:192.168.100.128}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
   flyway:
     enabled: ${FLYWAY_ENABLED:false}
 

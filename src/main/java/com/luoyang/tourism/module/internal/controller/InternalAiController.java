@@ -8,6 +8,8 @@ import com.luoyang.tourism.module.appuser.pojo.vo.AppUserVos;
 import com.luoyang.tourism.module.appuser.service.RecommendationService;
 import com.luoyang.tourism.module.content.pojo.vo.ContentVos;
 import com.luoyang.tourism.module.content.service.PublicContentService;
+import com.luoyang.tourism.module.knowledge.pojo.dto.KnowledgeDtos;
+import com.luoyang.tourism.module.knowledge.service.KnowledgePersistenceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -31,11 +33,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/internal/v1/ai")
-@Tag(name = "内部 AI 数据", description = "仅供 FastAPI 通过 HMAC 调用")
+@Tag(name = "内部 AI 数据", description = "仅供 FastAPI 通过 X-Internal-Token 调用")
 public class InternalAiController {
     private final PublicContentService contentService;
     private final RecommendationService recommendationService;
     private final AiChatService chatService;
+    private final KnowledgePersistenceService knowledgePersistenceService;
 
     @GetMapping("/spots/search")
     @Operation(summary = "搜索已发布景点")
@@ -101,6 +104,13 @@ public class InternalAiController {
         return ApiResponse.success(values.stream().map(value -> new InternalAiDtos.RecommendationItem(
                 value.spot().id(), value.spot().name(), value.spot().categoryName(), value.spot().summary(),
                 value.score(), value.reason(), "/pages/spot/detail?id=" + value.spot().id())).toList());
+    }
+
+    @PostMapping("/knowledge/chunks/batch")
+    @Operation(summary = "批量写入知识分片元数据")
+    public ApiResponse<KnowledgeDtos.ChunkBatchResult> upsertKnowledgeChunks(
+            @Valid @RequestBody KnowledgeDtos.ChunkBatchRequest request) {
+        return ApiResponse.success(knowledgePersistenceService.upsertChunks(request));
     }
 
     @GetMapping("/conversations/{threadId}/messages")

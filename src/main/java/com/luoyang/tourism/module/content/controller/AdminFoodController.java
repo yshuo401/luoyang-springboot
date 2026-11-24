@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -37,7 +36,6 @@ public class AdminFoodController {
     private final AdminFoodService service;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERM_content:food:read')")
     @Operation(summary = "美食分页列表")
     public ApiResponse<PageResult<ContentVos.AdminFood>> list(
             @RequestParam(required = false) String keyword,
@@ -49,14 +47,12 @@ public class AdminFoodController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:food:read')")
     @Operation(summary = "美食详情")
     public ApiResponse<ContentVos.AdminFood> detail(@PathVariable Long id) {
         return ApiResponse.success(service.detail(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('PERM_content:food:create')")
     @Operation(summary = "新建美食草稿")
     public ApiResponse<ContentVos.AdminFood> create(@Valid @RequestBody ContentDtos.FoodUpsertRequest request,
                                                      @AuthenticationPrincipal Jwt jwt) {
@@ -64,7 +60,6 @@ public class AdminFoodController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:food:update')")
     @Operation(summary = "更新美食")
     public ApiResponse<ContentVos.AdminFood> update(@PathVariable Long id,
                                                      @Valid @RequestBody ContentDtos.FoodUpsertRequest request,
@@ -73,7 +68,6 @@ public class AdminFoodController {
     }
 
     @PostMapping("/{id}/publish")
-    @PreAuthorize("hasAuthority('PERM_content:food:publish')")
     @Operation(summary = "发布美食")
     public ApiResponse<ContentVos.AdminFood> publish(@PathVariable Long id,
                                                       @RequestParam("version") Integer version,
@@ -82,7 +76,6 @@ public class AdminFoodController {
     }
 
     @PostMapping("/{id}/unpublish")
-    @PreAuthorize("hasAuthority('PERM_content:food:publish')")
     @Operation(summary = "下架美食")
     public ApiResponse<ContentVos.AdminFood> unpublish(@PathVariable Long id,
                                                         @RequestParam("version") Integer version,
@@ -91,7 +84,6 @@ public class AdminFoodController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:food:delete')")
     @Operation(summary = "软删除美食")
     public ApiResponse<Void> delete(@PathVariable Long id,
                                     @RequestParam("version") Integer version,

@@ -5,16 +5,13 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * AuthDtos 数据传输对象，用于接口请求参数和内部契约。
+ * 认证接口请求参数。
  */
 public final class AuthDtos {
     private AuthDtos() {
     }
 
     public record WechatLoginRequest(@NotBlank @Size(max = 256) String code) {
-    }
-
-    public record RefreshRequest(@NotBlank String refreshToken) {
     }
 
     public record AdminLoginRequest(

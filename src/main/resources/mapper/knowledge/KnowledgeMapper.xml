@@ -41,11 +41,19 @@
         WHERE id=#{id} AND version=#{version} AND is_deleted=0
     </update>
     <delete id="hardDeleteChunks">DELETE FROM knowledge_chunk WHERE document_id=#{documentId}</delete>
-    <insert id="insertChunk" useGeneratedKeys="true" keyProperty="id">
+    <delete id="deleteChunksAtOrAfter">
+        DELETE FROM knowledge_chunk
+        WHERE document_id=#{documentId} AND chunk_index &gt;= #{chunkIndex}
+    </delete>
+    <insert id="upsertChunk" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO knowledge_chunk
         (document_id, chunk_index, vector_id, content, content_hash, char_count, metadata, enabled)
         VALUES (#{documentId}, #{chunkIndex}, #{vectorId}, #{content}, #{contentHash},
                 #{charCount}, #{metadata}, #{enabled})
+        ON DUPLICATE KEY UPDATE
+            vector_id=VALUES(vector_id), content=VALUES(content), content_hash=VALUES(content_hash),
+            char_count=VALUES(char_count), metadata=VALUES(metadata), enabled=VALUES(enabled),
+            updated_at=CURRENT_TIMESTAMP(3)
     </insert>
 
     <insert id="insertJob" useGeneratedKeys="true" keyProperty="id">

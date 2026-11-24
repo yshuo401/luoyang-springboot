@@ -45,15 +45,15 @@ public class SecurityConfig {
                 .exceptionHandling(errors -> errors
                         .authenticationEntryPoint(authenticationEntryPoint)
                         .accessDeniedHandler(accessDeniedHandler))
-                // 路由边界：公共只读、App JWT、Admin JWT 和内部 HMAC 严格分层。
+                // 路由边界：公共只读、App JWT、Admin JWT 和内部令牌分层。
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**", "/error").permitAll()
                         .requestMatchers("/doc.html", "/webjars/**", "/v3/api-docs/**",
                                 "/swagger-ui/**", "/swagger-ui.html", "/favicon.ico").permitAll()
                         .requestMatchers("/api/v1/public/**").permitAll()
-                        .requestMatchers("/api/v1/app/auth/wechat-login", "/api/v1/app/auth/refresh").permitAll()
-                        .requestMatchers("/api/v1/admin/auth/login", "/api/v1/admin/auth/refresh").permitAll()
+                        .requestMatchers("/api/v1/app/auth/wechat-login").permitAll()
+                        .requestMatchers("/api/v1/admin/auth/login").permitAll()
                         .requestMatchers("/internal/**").permitAll()
                         .requestMatchers("/api/v1/app/**").hasRole("APP_USER")
                         .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

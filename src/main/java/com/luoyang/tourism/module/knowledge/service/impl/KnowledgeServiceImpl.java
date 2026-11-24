@@ -101,6 +101,8 @@ public KnowledgeVos.UploadResult reindex(Long documentId, KnowledgeDtos.ReindexR
         job.setStatus(0);
         job.setIdempotencyKey(request.idempotencyKey());
         job.setProgress(0);
+        job.setTotalChunks(0);
+        job.setProcessedChunks(0);
         job.setRequestedBy(adminId);
         persistence.createJob(job);
         return submit(document, job);

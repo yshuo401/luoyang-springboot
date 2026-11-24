@@ -22,14 +22,6 @@ spring:
     encoding: UTF-8
     validate-on-migrate: true
     clean-disabled: true
-  data:
-    redis:
-      host: ${REDIS_HOST:127.0.0.1}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      database: ${REDIS_DATABASE:0}
-      timeout: 3s
-      connect-timeout: 3s
   servlet:
     multipart:
       max-file-size: 50MB
@@ -87,17 +79,14 @@ app:
     issuer: ${JWT_ISSUER:luoyang-tourism}
     app-secret: ${JWT_APP_SECRET:}
     admin-secret: ${JWT_ADMIN_SECRET:}
-    app-access-ttl: ${JWT_APP_ACCESS_TTL:2h}
-    app-refresh-ttl: ${JWT_APP_REFRESH_TTL:30d}
-    admin-access-ttl: ${JWT_ADMIN_ACCESS_TTL:30m}
-    admin-refresh-ttl: ${JWT_ADMIN_REFRESH_TTL:7d}
+    app-access-ttl: ${JWT_APP_ACCESS_TTL:7d}
+    admin-access-ttl: ${JWT_ADMIN_ACCESS_TTL:1d}
   ai:
     base-url: ${AI_SERVICE_BASE_URL:http://127.0.0.1:8000}
     connect-timeout: ${AI_CONNECT_TIMEOUT:2s}
-    read-timeout: ${AI_READ_TIMEOUT:28s}
+    read-timeout: ${AI_READ_TIMEOUT:60s}
   internal:
-    shared-secret: ${INTERNAL_SHARED_SECRET:}
-    timestamp-tolerance-seconds: ${INTERNAL_TIMESTAMP_TOLERANCE_SECONDS:300}
+    token: ${INTERNAL_TOKEN:change-me-local-internal-token}
   oss:
     enabled: ${APP_OSS_ENABLED:false}
     endpoint: ${OSS_ENDPOINT:}

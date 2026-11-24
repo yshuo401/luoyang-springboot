@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +37,6 @@ public class AdminBannerController {
     private final AdminBannerService service;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERM_content:banner:read')")
     @Operation(summary = "轮播图分页列表")
     public ApiResponse<PageResult<ContentVos.AdminBanner>> list(
             @RequestParam(required = false) String position,
@@ -49,14 +47,12 @@ public class AdminBannerController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:banner:read')")
     @Operation(summary = "轮播图详情")
     public ApiResponse<ContentVos.AdminBanner> detail(@PathVariable Long id) {
         return ApiResponse.success(service.detail(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('PERM_content:banner:create')")
     @Operation(summary = "新建轮播图")
     public ApiResponse<ContentVos.AdminBanner> create(@Valid @RequestBody ContentDtos.BannerUpsertRequest request,
                                                        @AuthenticationPrincipal Jwt jwt) {
@@ -64,7 +60,6 @@ public class AdminBannerController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:banner:update')")
     @Operation(summary = "更新轮播图")
     public ApiResponse<ContentVos.AdminBanner> update(@PathVariable Long id,
                                                        @Valid @RequestBody ContentDtos.BannerUpsertRequest request,
@@ -73,7 +68,6 @@ public class AdminBannerController {
     }
 
     @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAuthority('PERM_content:banner:update')")
     @Operation(summary = "启用或禁用轮播图")
     public ApiResponse<ContentVos.AdminBanner> status(@PathVariable Long id,
                                                        @Valid @RequestBody ContentDtos.StatusRequest request,
@@ -82,7 +76,6 @@ public class AdminBannerController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:banner:delete')")
     @Operation(summary = "软删除轮播图")
     public ApiResponse<Void> delete(@PathVariable Long id,
                                     @RequestParam("version") Integer version,

@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,7 +37,6 @@ public class AdminGuideController {
     private final AdminGuideService service;
 
     @GetMapping
-    @PreAuthorize("hasAuthority('PERM_content:guide:read')")
     @Operation(summary = "攻略分页列表")
     public ApiResponse<PageResult<ContentVos.AdminGuide>> list(
             @RequestParam(required = false) String keyword,
@@ -49,14 +47,12 @@ public class AdminGuideController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:guide:read')")
     @Operation(summary = "攻略详情")
     public ApiResponse<ContentVos.AdminGuide> detail(@PathVariable Long id) {
         return ApiResponse.success(service.detail(id));
     }
 
     @PostMapping
-    @PreAuthorize("hasAuthority('PERM_content:guide:create')")
     @Operation(summary = "新建攻略草稿")
     public ApiResponse<ContentVos.AdminGuide> create(@Valid @RequestBody ContentDtos.GuideUpsertRequest request,
                                                       @AuthenticationPrincipal Jwt jwt) {
@@ -64,7 +60,6 @@ public class AdminGuideController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:guide:update')")
     @Operation(summary = "更新攻略")
     public ApiResponse<ContentVos.AdminGuide> update(@PathVariable Long id,
                                                       @Valid @RequestBody ContentDtos.GuideUpsertRequest request,
@@ -73,7 +68,6 @@ public class AdminGuideController {
     }
 
     @PutMapping("/{id}/days")
-    @PreAuthorize("hasAuthority('PERM_content:guide:update')")
     @Operation(summary = "原子替换每日行程")
     public ApiResponse<ContentVos.AdminGuide> replaceDays(@PathVariable Long id,
                                                            @RequestBody List<ContentDtos.DayRequest> days,
@@ -82,7 +76,6 @@ public class AdminGuideController {
     }
 
     @PostMapping("/{id}/publish")
-    @PreAuthorize("hasAuthority('PERM_content:guide:publish')")
     @Operation(summary = "发布攻略")
     public ApiResponse<ContentVos.AdminGuide> publish(@PathVariable Long id,
                                                        @RequestParam("version") Integer version,
@@ -91,7 +84,6 @@ public class AdminGuideController {
     }
 
     @PostMapping("/{id}/unpublish")
-    @PreAuthorize("hasAuthority('PERM_content:guide:publish')")
     @Operation(summary = "下架攻略")
     public ApiResponse<ContentVos.AdminGuide> unpublish(@PathVariable Long id,
                                                          @RequestParam("version") Integer version,
@@ -100,7 +92,6 @@ public class AdminGuideController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('PERM_content:guide:delete')")
     @Operation(summary = "软删除攻略")
     public ApiResponse<Void> delete(@PathVariable Long id,
                                     @RequestParam("version") Integer version,
